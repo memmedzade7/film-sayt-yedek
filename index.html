@@ -517,24 +517,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 99999;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 100000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 20px;
             color: #ffffff;
-            backdrop-filter: blur(10px);
-        }
-
-        @media only screen and (max-width: 1024px) and (orientation: portrait) {
-            #rotate-warning {
-                display: flex;
-            }
-            body {
-                overflow: hidden;
-            }
+            backdrop-filter: blur(15px);
         }
 
         .phone-animation {
@@ -2571,9 +2562,30 @@ async function openActorDetails(id) {
             }
         }
 
+        // Mobil cihazlarda portrait xəbərdarlığı
+        function checkOrientation() {
+            const warning = document.getElementById('rotate-warning');
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Portrait (dik) yoxlaması
+                if (window.innerHeight > window.innerWidth) {
+                    warning.style.display = 'flex';
+                } else {
+                    warning.style.display = 'none';
+                }
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+
         // Reklam əngəlləmə (sadə səviyyə)
         window.open = function() { return null; };
 
+        checkOrientation();
         init();
     </script>
 </body>
