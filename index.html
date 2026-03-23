@@ -12,7 +12,7 @@
   gtag('config', 'G-V5ESHNLC1K');
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>RM Film | Minlərlə film, Tək Məkan</title>
     <meta name="description" content="RM Film - Ən son filmlər, seriallar və aktyorlar haqqında məlumat, onlayn izləmə imkanı və şəxsi izləmə siyahısı.">
@@ -69,8 +69,7 @@
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            overflow-x: auto;
-            min-width: 1200px;
+            overflow-x: hidden;
         }
 
         header {
@@ -511,30 +510,29 @@
 
         /* Mobile Portrait Warning Overlay */
         #rotate-warning {
-            display: none;
+            display: none; /* JS ilə idarə olunacaq */
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 99999;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 100000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 20px;
             color: #ffffff;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
 
-        @media only screen and (max-width: 1024px) and (orientation: portrait) {
-            #rotate-warning {
-                display: flex;
-            }
-            body {
-                overflow: hidden;
-            }
+        /* Body-ni yalnız desktop-da 1200px saxlayırıq */
+        @media screen and (min-width: 1201px) {
+            body { min-width: 1200px; }
+        }
+        @media screen and (max-width: 1200px) {
+            body { min-width: auto; overflow-x: hidden; }
         }
 
         .phone-animation {
@@ -2571,9 +2569,35 @@ async function openActorDetails(id) {
             }
         }
 
+        // Mobil cihaz və orientasiya yoxlaması
+        function checkOrientation() {
+            const warning = document.getElementById('rotate-warning');
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                if (window.innerHeight > window.innerWidth) {
+                    // Portrait rejimindədir
+                    warning.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    // Landscape rejimindədir
+                    warning.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            } else {
+                // Desktop-da həmişə gizli qalsın
+                warning.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        
         // Reklam əngəlləmə (sadə səviyyə)
         window.open = function() { return null; };
 
+        checkOrientation();
         init();
     </script>
 </body>
