@@ -19,6 +19,7 @@
     <meta name="keywords" content="film izlə, serial izlə, yeni filmlər, RM Film, Rəsul Məmmədzadə, sinema, HD film">
     <meta name="author" content="Rəsul Məmmədzadə">
     <meta name="robots" content="index, follow">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
     
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://rmfilm.az/">
@@ -31,6 +32,8 @@
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* Mood-a görə dəyişən dinamik arxa fon təbəqəsi */
@@ -385,6 +388,29 @@
             overflow: hidden;
         }
 
+        .ad-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 25px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background: rgba(17, 24, 39, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 728px;
+            min-height: 110px;
+        }
+
+        .ad-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: lowercase;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
         .player-tabs {
             display: flex;
             background: #111;
@@ -507,85 +533,6 @@
             background: #0d1117;
             scrollbar-width: thin;
             scrollbar-color: #30363d transparent;
-        }
-
-        /* Mobile Portrait Warning Overlay */
-        #rotate-warning {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 100000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            color: #ffffff;
-            backdrop-filter: blur(15px);
-        }
-
-        .phone-animation {
-            width: 100px;
-            height: 160px;
-            border: 5px solid var(--accent-gold);
-            border-radius: 20px;
-            position: relative;
-            margin-bottom: 50px;
-            animation: rotatePhone 2.5s infinite ease-in-out;
-            box-shadow: 0 0 40px rgba(251, 191, 36, 0.4);
-        }
-
-        .phone-animation::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 5px;
-            background: rgba(251, 191, 36, 0.5);
-            border-radius: 10px;
-        }
-
-        .phone-animation::after {
-            content: '';
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 20px;
-            border: 3px solid var(--accent-gold);
-            border-radius: 50%;
-        }
-
-        @keyframes rotatePhone {
-            0% { transform: rotate(0deg); }
-            30% { transform: rotate(-90deg); }
-            70% { transform: rotate(-90deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        .warning-text {
-            font-size: 2.2rem;
-            font-weight: 900;
-            max-width: 500px;
-            line-height: 1.2;
-            letter-spacing: 1px;
-        }
-
-        .warning-text span {
-            color: var(--accent-gold);
-            display: block;
-            margin-top: 25px;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-            letter-spacing: 6px;
-            opacity: 0.9;
         }
         
         .chat-msg { 
@@ -1178,15 +1125,6 @@
     </style>
 </head>
 <body>
-    <!-- Mobil Portrait Xəbərdarlığı -->
-    <div id="rotate-warning">
-        <div class="phone-animation"></div>
-        <div class="warning-text">
-            Daha yaxşı izləmə təcrübəsi üçün telefonu yan çevirin
-            <span>RM Film</span>
-        </div>
-    </div>
-
 
     <div id="bg-overlay"></div>
 
@@ -2245,6 +2183,30 @@ async function loadPartyCatalog(isNew = true) {
 
         let currentMovieForTicket = null;
 
+        function injectAd() {
+             const container = document.getElementById('modal-ad');
+             if(!container) return;
+             
+             // Clear container and add label
+             container.innerHTML = '<div class="ad-label">reklam</div>';
+             
+             const script1 = document.createElement('script');
+            script1.innerHTML = `
+                atOptions = { 
+                    'key' : 'cf2284ec5521d5c3ac2faeaeee1353a0', 
+                    'format' : 'iframe', 
+                    'height' : 90, 
+                    'width' : 728, 
+                    'params' : {} 
+                };
+            `;
+            const script2 = document.createElement('script');
+            script2.src = 'https://www.highperformanceformat.com/cf2284ec5521d5c3ac2faeaeee1353a0/invoke.js';
+            
+            container.appendChild(script1);
+            container.appendChild(script2);
+        }
+
         async function openDetails(id) {
             // Fetch movie details first to get the title
             const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=${LANG}`);
@@ -2327,11 +2289,25 @@ async function loadPartyCatalog(isNew = true) {
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/movie/${id}" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
+                <div id="modal-ad" class="ad-container"></div>
                 <div class="search-options" style="background: #111; padding: 15px; display: flex; gap: 10px; border-bottom: 1px solid #222; overflow-x: auto;">
                     <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
+                </div>
+                <div class="alternative-search" style="background: #111; padding: 20px; border-bottom: 1px solid #222;">
+                    <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-search-plus" style="color: #a855f7;"></i> Filmi tapmadınız? Alternativ axtarış:
+                    </p>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #ff0000; border-color: #ff0000; color: white; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);">
+                            <i class="fab fa-youtube"></i> YouTube-da axtar
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(movie.title + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #fff; border-color: #4285f4; color: #4285f4; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.2);">
+                            <i class="fab fa-google" style="color: #4285f4;"></i> Google-da axtar
+                        </a>
+                    </div>
                 </div>
                 <div class="details-grid">
                     <img src="${IMG_PATH + movie.poster_path}">
@@ -2349,6 +2325,7 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                 </div>
             `;
+            injectAd();
         }
 
         // Window-a bağlayırıq ki, React komponentindən çağıra bilək
@@ -2371,6 +2348,7 @@ async function loadPartyCatalog(isNew = true) {
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/tv/${id}/1/1" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
+                <div id="modal-ad" class="ad-container"></div>
                 <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">SEZON SEÇİN</label>
@@ -2386,7 +2364,20 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                     <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">�� AZ Dublaj</a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
+                    </div>
+                </div>
+                <div class="alternative-search" style="background: #111; padding: 20px; border-bottom: 1px solid #222;">
+                    <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-search-plus" style="color: #a855f7;"></i> Serialı tapmadınız? Alternativ axtarış:
+                    </p>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #ff0000; border-color: #ff0000; color: white; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);">
+                            <i class="fab fa-youtube"></i> YouTube-da axtar
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent((tv.name || tv.title) + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #fff; border-color: #4285f4; color: #4285f4; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.2);">
+                            <i class="fab fa-google" style="color: #4285f4;"></i> Google-da axtar
+                        </a>
                     </div>
                 </div>
                 <div class="details-grid">
@@ -2410,6 +2401,7 @@ async function loadPartyCatalog(isNew = true) {
             if(seasons.length > 0) {
                 updateEpisodes(id, seasons[0].season_number);
             }
+            injectAd();
         }
 
         async function updateEpisodes(tvId, seasonNumber) {
@@ -2562,35 +2554,12 @@ async function openActorDetails(id) {
             }
         }
 
-        // Mobil cihazlarda portrait xəbərdarlığı
-        function checkOrientation() {
-            const warning = document.getElementById('rotate-warning');
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                if (window.innerHeight > window.innerWidth) {
-                    // Portrait (dik) rejimi
-                    warning.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    // Landscape (yan) rejimi - Tam Desktop görünüşü
-                    warning.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-            } else {
-                warning.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', checkOrientation);
-
         // Reklam əngəlləmə (sadə səviyyə)
         window.open = function() { return null; };
 
-        checkOrientation();
         init();
     </script>
-</body>
-</html>
+
+ </div>
+ </body>
+ </html>
