@@ -2,15 +2,6 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-V5ESHNLC1K"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-V5ESHNLC1K');
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1200">
     
@@ -384,29 +375,6 @@
             background: #000; 
             position: relative; 
             overflow: hidden;
-        }
-
-        .ad-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            margin: 25px auto;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            background: rgba(17, 24, 39, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            max-width: 728px;
-            min-height: 110px;
-        }
-
-        .ad-label {
-            font-size: 10px;
-            color: #6b7280;
-            text-transform: lowercase;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
         }
 
         .player-tabs {
@@ -2218,30 +2186,6 @@ async function loadPartyCatalog(isNew = true) {
 
         let currentMovieForTicket = null;
 
-        function injectAd() {
-             const container = document.getElementById('modal-ad');
-             if(!container) return;
-             
-             // Clear container and add label
-             container.innerHTML = '<div class="ad-label">reklam</div>';
-             
-             const script1 = document.createElement('script');
-            script1.innerHTML = `
-                atOptions = { 
-                    'key' : 'cf2284ec5521d5c3ac2faeaeee1353a0', 
-                    'format' : 'iframe', 
-                    'height' : 90, 
-                    'width' : 728, 
-                    'params' : {} 
-                };
-            `;
-            const script2 = document.createElement('script');
-            script2.src = 'https://www.highperformanceformat.com/cf2284ec5521d5c3ac2faeaeee1353a0/invoke.js';
-            
-            container.appendChild(script1);
-            container.appendChild(script2);
-        }
-
         async function openDetails(id) {
             // Fetch movie details first to get the title
             const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=${LANG}`);
@@ -2340,7 +2284,6 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                 </div>
 
-                <div id="modal-ad" class="ad-container"></div>
                 <div class="search-options" style="background: #111; padding: 15px; display: flex; gap: 10px; border-bottom: 1px solid #222; overflow-x: auto;">
                     <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
@@ -2363,7 +2306,6 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                 </div>
             `;
-            injectAd();
         }
 
         // Window-a bağlayırıq ki, React komponentindən çağıra bilək
@@ -2402,7 +2344,6 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                 </div>
 
-                <div id="modal-ad" class="ad-container"></div>
                 <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">SEZON SEÇİN</label>
@@ -2442,7 +2383,6 @@ async function loadPartyCatalog(isNew = true) {
             if(seasons.length > 0) {
                 updateEpisodes(id, seasons[0].season_number);
             }
-            injectAd();
         }
 
         async function updateEpisodes(tvId, seasonNumber) {
