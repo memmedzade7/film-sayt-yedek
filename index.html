@@ -32,8 +32,6 @@
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         /* Mood-a görə dəyişən dinamik arxa fon təbəqəsi */
@@ -433,6 +431,43 @@
         .player-btn.active { background: #6366f1; border-color: #6366f1; }
         
         .player-btn.alt-source { background: #fbbf24; color: #000; font-weight: bold; border: none; }
+
+        .alt-search-section {
+            background: #111;
+            padding: 20px;
+            border-bottom: 1px solid #222;
+        }
+        .alt-search-title {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .alt-btns-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .alt-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .yt-btn { background: #ff000022; color: #ff4b4b; border-color: #ff000044; }
+        .yt-btn:hover { background: #ff0000; color: white; transform: translateY(-2px); }
+        .google-btn { background: #4285f422; color: #4285f4; border-color: #4285f444; }
+        .google-btn:hover { background: #4285f4; color: white; transform: translateY(-2px); }
+        .yandex-btn { background: #ffcc0022; color: #ffcc00; border-color: #ffcc0044; }
+        .yandex-btn:hover { background: #ffcc00; color: black; transform: translateY(-2px); }
 
         .details-grid { padding: 40px; display: grid; grid-template-columns: 300px 1fr; gap: 40px; }
         .details-grid img { width: 100%; border-radius: 20px; }
@@ -2289,25 +2324,28 @@ async function loadPartyCatalog(isNew = true) {
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/movie/${id}" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
+
+                <div class="alt-search-section">
+                    <p class="alt-search-title">Filmi tapmadınız? Alternativ axtarış:</p>
+                    <div class="alt-btns-container">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title)}+izlə" target="_blank" class="alt-btn yt-btn">
+                            <span>🔴</span> YouTube-da axtar
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(movie.title)}+izlə" target="_blank" class="alt-btn google-btn">
+                            <span>🔵</span> Google-da axtar
+                        </a>
+                        <a href="https://yandex.com/search/?text=${encodeURIComponent(movie.title)}+izlə" target="_blank" class="alt-btn yandex-btn">
+                            <span>🟡</span> Yandex-də axtar
+                        </a>
+                    </div>
+                </div>
+
                 <div id="modal-ad" class="ad-container"></div>
                 <div class="search-options" style="background: #111; padding: 15px; display: flex; gap: 10px; border-bottom: 1px solid #222; overflow-x: auto;">
                     <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
-                </div>
-                <div class="alternative-search" style="background: #111; padding: 20px; border-bottom: 1px solid #222;">
-                    <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-search-plus" style="color: #a855f7;"></i> Filmi tapmadınız? Alternativ axtarış:
-                    </p>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(movie.title + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #ff0000; border-color: #ff0000; color: white; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);">
-                            <i class="fab fa-youtube"></i> YouTube-da axtar
-                        </a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent(movie.title + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #fff; border-color: #4285f4; color: #4285f4; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.2);">
-                            <i class="fab fa-google" style="color: #4285f4;"></i> Google-da axtar
-                        </a>
-                    </div>
                 </div>
                 <div class="details-grid">
                     <img src="${IMG_PATH + movie.poster_path}">
@@ -2348,6 +2386,22 @@ async function loadPartyCatalog(isNew = true) {
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/tv/${id}/1/1" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
+
+                <div class="alt-search-section">
+                    <p class="alt-search-title">Filmi tapmadınız? Alternativ axtarış:</p>
+                    <div class="alt-btns-container">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(tv.name || tv.title)}+izlə" target="_blank" class="alt-btn yt-btn">
+                            <span>🔴</span> YouTube-da axtar
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(tv.name || tv.title)}+izlə" target="_blank" class="alt-btn google-btn">
+                            <span>🔵</span> Google-da axtar
+                        </a>
+                        <a href="https://yandex.com/search/?text=${encodeURIComponent(tv.name || tv.title)}+izlə" target="_blank" class="alt-btn yandex-btn">
+                            <span>🟡</span> Yandex-də axtar
+                        </a>
+                    </div>
+                </div>
+
                 <div id="modal-ad" class="ad-container"></div>
                 <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
@@ -2364,20 +2418,7 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                     <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
-                    </div>
-                </div>
-                <div class="alternative-search" style="background: #111; padding: 20px; border-bottom: 1px solid #222;">
-                    <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-search-plus" style="color: #a855f7;"></i> Serialı tapmadınız? Alternativ axtarış:
-                    </p>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #ff0000; border-color: #ff0000; color: white; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);">
-                            <i class="fab fa-youtube"></i> YouTube-da axtar
-                        </a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent((tv.name || tv.title) + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="background: #fff; border-color: #4285f4; color: #4285f4; display: flex; align-items: center; gap: 8px; padding: 10px 20px; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(66, 133, 244, 0.2);">
-                            <i class="fab fa-google" style="color: #4285f4;"></i> Google-da axtar
-                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">�� AZ Dublaj</a>
                     </div>
                 </div>
                 <div class="details-grid">
