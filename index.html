@@ -1117,91 +1117,8 @@
         }
         .close-ticket:hover {
             transform: scale(1.1) rotate(90deg);
+            background: #ff6b81;
         }
-
-        /* --- Alternativ Axtarış Bölməsi --- */
-        .alternative-search-section {
-            padding: 20px 25px;
-            background: #0d1117; /* Tünd fon */
-            border-top: 1px solid #30363d;
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .alt-search-title {
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #8b949e; /* Boz rəng */
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-
-        .lang-filters {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .lang-filter-btn {
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #c9d1d9;
-            padding: 6px 15px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .lang-filter-btn:hover {
-            background: #30363d;
-            border-color: #58a6ff;
-        }
-
-        .lang-filter-btn.active {
-            background: #58a6ff;
-            color: #0d1117;
-            border-color: #58a6ff;
-            box-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
-        }
-
-        .search-engine-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .search-engine-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.9rem;
-            color: white;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .search-engine-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .search-engine-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .google-btn { background-color: #4285F4; }
-        .yandex-btn { background-color: #FFCC00; color: #000; }
-        .youtube-btn { background-color: #FF0000; }
 
     </style>
 </head>
@@ -2254,7 +2171,9 @@ async function loadPartyCatalog(isNew = true) {
                             <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + title)}" target="_blank" rel="noopener" style="color:var(--accent-gold); font-size: 0.85rem; text-decoration:none;">🇦🇿 AZ Dublaj</a>
                             <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + title)}" target="_blank" rel="noopener" style="color:var(--accent-gold); font-size: 0.85rem; text-decoration:none;">🇹🇷 Türkçe</a>
                             <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + title)}" target="_blank" rel="noopener" style="color:#60a5fa; font-size: 0.85rem; text-decoration:none;">🇷🇺 Rusça</a>
+                            <a href="https://yandex.com/search/?text=${encodeURIComponent(title + ' dublaj izle')}" target="_blank" rel="noopener" style="color:#ff0000; font-size: 0.85rem; text-decoration:none;">Y Yandex</a>
                             <span style="color:var(--accent-gold); font-size: 10px; cursor:pointer;" onclick="window.openDetails(${item.id})">DETALLARA BAX</span>
+                        </div>
                     </div>
                 `;
                 el.onclick = () => isTV ? openTVDetails(item.id) : openDetails(item.id);
@@ -2376,6 +2295,7 @@ async function loadPartyCatalog(isNew = true) {
                     <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
+                    <a href="https://yandex.com/search/?text=${encodeURIComponent(movie.title + ' dublaj izle')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #ff0000; color: white;">Y Yandex</a>
                 </div>
                 <div class="details-grid">
                     <img src="${IMG_PATH + movie.poster_path}">
@@ -2432,7 +2352,10 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                     <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">�� AZ Dublaj</a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
+                        <a href="https://yandex.com/search/?text=${encodeURIComponent((tv.name || tv.title) + ' dublaj izle')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #ff0000; color: white;">Y Yandex</a>
                     </div>
                 </div>
                 <div class="details-grid">
@@ -2478,23 +2401,11 @@ async function loadPartyCatalog(isNew = true) {
             }
         }
 
-        function updateTVPlayer(tvId, seriesName) {
+        function updateTVPlayer(tvId) {
             const season = document.getElementById('season-select').value;
             const episode = document.getElementById('episode-select').value;
             if(season && episode) {
                 document.getElementById('main-player').src = `https://vidsrc.cc/v2/embed/tv/${tvId}/${season}/${episode}`;
-                
-                // Axtarış mətnini yenilə
-                const baseQuery = `${seriesName} ${season}. Sezon ${episode}. Bölüm`;
-                const searchSection = document.getElementById('alternative-search-section');
-                if (searchSection) {
-                    searchSection.outerHTML = generateAlternativeSearchHTML(baseQuery);
-                    // Dili yenidən tətbiq et
-                    const activeLangBtn = document.querySelector('.lang-filter-btn.active');
-                    if (activeLangBtn) {
-                        updateSearchLinks(activeLangBtn.innerText, null);
-                    }
-                }
             }
         }
 
