@@ -2327,30 +2327,29 @@ async function loadPartyCatalog(isNew = true) {
             const credits = await cRes.json();
 
             const seasons = tv.seasons.filter(s => s.season_number > 0);
-            const safeTvName = tv.name.replace(/'/g, "\\'");
             
             modalContent.innerHTML = `
                 <span class="close-modal" onclick="closeModal()">&times;</span>
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/tv/${id}/1/1" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
-                <div id="tv-search-container" class="player-tabs" style="justify-content: center; padding: 10px; background: #0a0a0a; border-bottom: 1px solid #222;"></div>
                 <div id="modal-ad" class="ad-container"></div>
                 <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">SEZON SEÇİN</label>
-                        <select id="season-select" onchange="updateEpisodes(${id}, this.value, '${safeTvName}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="season-select" onchange="updateEpisodes(${id}, this.value)" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             ${seasons.map(s => `<option value="${s.season_number}">${s.season_number}. Sezon</option>`).join('')}
                         </select>
                     </div>
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">BÖLÜM SEÇİN</label>
-                        <select id="episode-select" onchange="updateTVPlayer(${id}, '${safeTvName}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="episode-select" onchange="updateTVPlayer(${id})" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             <!-- Episodes will be populated here -->
                         </select>
                     </div>
                     <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
                         <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">�� AZ Dublaj</a>
                     </div>
                 </div>
                 <div class="details-grid">
@@ -2372,12 +2371,12 @@ async function loadPartyCatalog(isNew = true) {
 
             // Initial episodes for Season 1
             if(seasons.length > 0) {
-                updateEpisodes(id, seasons[0].season_number, tv.name);
+                updateEpisodes(id, seasons[0].season_number);
             }
             injectAd();
         }
 
-        async function updateEpisodes(tvId, seasonNumber, tvName) {
+        async function updateEpisodes(tvId, seasonNumber) {
             const episodeSelect = document.getElementById('episode-select');
             episodeSelect.innerHTML = '<option value="">Yüklənir...</option>';
             
@@ -2389,28 +2388,18 @@ async function loadPartyCatalog(isNew = true) {
                     <option value="${e.episode_number}">${e.episode_number}. Bölüm: ${e.name}</option>
                 `).join('');
                 
-                updateTVPlayer(tvId, tvName);
+                updateTVPlayer(tvId);
             } catch (error) {
                 console.error("Bölümlər yüklənmədi:", error);
                 episodeSelect.innerHTML = '<option value="1">1. Bölüm</option>';
             }
         }
 
-        function updateTVPlayer(tvId, tvName) {
+        function updateTVPlayer(tvId) {
             const season = document.getElementById('season-select').value;
             const episode = document.getElementById('episode-select').value;
             if(season && episode) {
                 document.getElementById('main-player').src = `https://vidsrc.cc/v2/embed/tv/${tvId}/${season}/${episode}`;
-                
-                const searchContainer = document.getElementById('tv-search-container');
-                if (searchContainer) {
-                    const baseQuery = `${tvName} ${season}. Sezon ${episode}. Bölüm`;
-                    searchContainer.innerHTML = `
-                        <a href="https://www.google.com/search?q=${encodeURIComponent(baseQuery + ' Azərbaycanca izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #222; border: 1px solid #333; color: white;">🇦🇿 Google (AZ)</a>
-                        <a href="https://yandex.com/search/?text=${encodeURIComponent(baseQuery + ' Türkçe Dublaj izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #222; border: 1px solid #333; color: white;">🇹🇷 Yandex (TR)</a>
-                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(baseQuery)}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 YouTube</a>
-                    `;
-                }
             }
         }
 
