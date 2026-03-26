@@ -2171,9 +2171,7 @@ async function loadPartyCatalog(isNew = true) {
                             <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + title)}" target="_blank" rel="noopener" style="color:var(--accent-gold); font-size: 0.85rem; text-decoration:none;">🇦🇿 AZ Dublaj</a>
                             <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + title)}" target="_blank" rel="noopener" style="color:var(--accent-gold); font-size: 0.85rem; text-decoration:none;">🇹🇷 Türkçe</a>
                             <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + title)}" target="_blank" rel="noopener" style="color:#60a5fa; font-size: 0.85rem; text-decoration:none;">🇷🇺 Rusça</a>
-                            <a href="https://yandex.com/search/?text=${encodeURIComponent(title + ' dublaj izle')}" target="_blank" rel="noopener" style="color:#ff0000; font-size: 0.85rem; text-decoration:none;">Y Yandex</a>
                             <span style="color:var(--accent-gold); font-size: 10px; cursor:pointer;" onclick="window.openDetails(${item.id})">DETALLARA BAX</span>
-                        </div>
                     </div>
                 `;
                 el.onclick = () => isTV ? openTVDetails(item.id) : openDetails(item.id);
@@ -2295,7 +2293,6 @@ async function loadPartyCatalog(isNew = true) {
                     <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
                     <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
-                    <a href="https://yandex.com/search/?text=${encodeURIComponent(movie.title + ' dublaj izle')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #ff0000; color: white;">Y Yandex</a>
                 </div>
                 <div class="details-grid">
                     <img src="${IMG_PATH + movie.poster_path}">
@@ -2327,6 +2324,7 @@ async function loadPartyCatalog(isNew = true) {
                 fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}&language=${LANG}`)
             ]);
             const tv = await tvRes.json();
+            const seriesName = tv.name || tv.title;
             const credits = await cRes.json();
 
             const seasons = tv.seasons.filter(s => s.season_number > 0);
@@ -2340,22 +2338,23 @@ async function loadPartyCatalog(isNew = true) {
                 <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">SEZON SEÇİN</label>
-                        <select id="season-select" onchange="updateEpisodes(${id}, this.value)" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="season-select" onchange="updateEpisodes(${id}, this.value, '${seriesName.replace(/'/g, "\\'")}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             ${seasons.map(s => `<option value="${s.season_number}">${s.season_number}. Sezon</option>`).join('')}
                         </select>
                     </div>
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">BÖLÜM SEÇİN</label>
-                        <select id="episode-select" onchange="updateTVPlayer(${id})" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="episode-select" onchange="updateTVPlayer(${id}, '${seriesName.replace(/'/g, "\\'")}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             <!-- Episodes will be populated here -->
                         </select>
                     </div>
-                    <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
-                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('az dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('türkçe dublaj ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
-                        <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + (tv.name || tv.title))}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
-                        <a href="https://yandex.com/search/?text=${encodeURIComponent((tv.name || tv.title) + ' dublaj izle')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #ff0000; color: white;">Y Yandex</a>
+                    <div class="search-options" style="margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a id="youtube-search" href="#" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
+                        <a id="google-search" href="#" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🔍 Google</a>
+                        <a id="yandex-search" href="#" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🔍 Yandex</a>
+                        <a id="az-dub-search" href="#" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; border-color: var(--accent-gold);">🇦🇿 AZ Dublaj</a>
+                        <a id="tr-dub-search" href="#" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; border-color: var(--accent-gold);">🇹🇷 Türkçe</a>
+                        <a id="ru-dub-search" href="#" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; border-color: #60a5fa;">🇷🇺 Rusça</a>
                     </div>
                 </div>
                 <div class="details-grid">
@@ -2377,12 +2376,12 @@ async function loadPartyCatalog(isNew = true) {
 
             // Initial episodes for Season 1
             if(seasons.length > 0) {
-                updateEpisodes(id, seasons[0].season_number);
+                updateEpisodes(id, seasons[0].season_number, seriesName);
             }
             injectAd();
         }
 
-        async function updateEpisodes(tvId, seasonNumber) {
+        async function updateEpisodes(tvId, seasonNumber, seriesName) {
             const episodeSelect = document.getElementById('episode-select');
             episodeSelect.innerHTML = '<option value="">Yüklənir...</option>';
             
@@ -2394,18 +2393,27 @@ async function loadPartyCatalog(isNew = true) {
                     <option value="${e.episode_number}">${e.episode_number}. Bölüm: ${e.name}</option>
                 `).join('');
                 
-                updateTVPlayer(tvId);
+                updateTVPlayer(tvId, seriesName);
             } catch (error) {
                 console.error("Bölümlər yüklənmədi:", error);
                 episodeSelect.innerHTML = '<option value="1">1. Bölüm</option>';
             }
         }
 
-        function updateTVPlayer(tvId) {
+        function updateTVPlayer(tvId, seriesName) {
             const season = document.getElementById('season-select').value;
             const episode = document.getElementById('episode-select').value;
             if(season && episode) {
                 document.getElementById('main-player').src = `https://vidsrc.cc/v2/embed/tv/${tvId}/${season}/${episode}`;
+                
+                const queryBase = `${seriesName} ${season}. Sezon ${episode}. Bölüm`;
+                
+                document.getElementById('youtube-search').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(seriesName + ' trailer')}`;
+                document.getElementById('google-search').href = `https://www.google.com/search?q=${encodeURIComponent(queryBase + ' izlə')}`;
+                document.getElementById('yandex-search').href = `https://yandex.com/search/?text=${encodeURIComponent(queryBase + ' izlə')}`;
+                document.getElementById('az-dub-search').href = `https://www.google.com/search?q=${encodeURIComponent(queryBase + ' az dublaj izlə')}`;
+                document.getElementById('tr-dub-search').href = `https://www.google.com/search?q=${encodeURIComponent(queryBase + ' türkçe dublaj izlə')}`;
+                document.getElementById('ru-dub-search').href = `https://www.google.com/search?q=${encodeURIComponent(queryBase + ' rusça izlə')}`;
             }
         }
 
