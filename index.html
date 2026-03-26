@@ -2316,21 +2316,6 @@ async function loadPartyCatalog(isNew = true) {
         // Window-a bağlayırıq ki, React komponentindən çağıra bilək
         window.openDetails = openDetails;
 
-        function generateSearchLinks(title, season, episode) {
-            const searchQuery = `${title} ${season}. Sezon ${episode}. Bölüm`;
-            const youtubeSearchQuery = `${title} trailer`;
-            return `
-                <div class="search-options" style="background: #111; padding: 15px; display: flex; gap: 10px; border-bottom: 1px solid #222; overflow-x: auto;" id="dynamic-search-links">
-                    <a href="https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🔍 Google</a>
-                    <a href="https://yandex.com/search/?text=${encodeURIComponent(searchQuery + ' izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🔍 Yandex</a>
-                    <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(youtubeSearchQuery)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">📺 YouTube</a>
-                    <a href="https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' az dublaj izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇦🇿 AZ Dublaj</a>
-                    <a href="https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' türkçe dublaj izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇹🇷 Türkçe</a>
-                    <a href="https://www.google.com/search?q=${encodeURIComponent(searchQuery + ' перевод')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
-                </div>
-            `;
-        }
-
         async function openTVDetails(id) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -2342,26 +2327,30 @@ async function loadPartyCatalog(isNew = true) {
             const credits = await cRes.json();
 
             const seasons = tv.seasons.filter(s => s.season_number > 0);
+            const safeTvName = tv.name.replace(/'/g, "\\'");
             
             modalContent.innerHTML = `
                 <span class="close-modal" onclick="closeModal()">&times;</span>
                 <div class="video-container">
                     <iframe id="main-player" src="https://vidsrc.cc/v2/embed/tv/${id}/1/1" width="100%" height="100%" frameborder="0" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>
                 </div>
+                <div id="tv-search-container" class="player-tabs" style="justify-content: center; padding: 10px; background: #0a0a0a; border-bottom: 1px solid #222;"></div>
                 <div id="modal-ad" class="ad-container"></div>
-                <div id="search-links-container"></div>
-                <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-top: 1px solid #222; align-items: center;">
+                <div class="tv-controls" style="background: #111; padding: 20px; display: flex; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #222; align-items: center;">
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">SEZON SEÇİN</label>
-                        <select id="season-select" onchange="updateEpisodes(${id}, this.value, '${tv.name.replace(/'/g, "\\'")}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="season-select" onchange="updateEpisodes(${id}, this.value, '${safeTvName}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             ${seasons.map(s => `<option value="${s.season_number}">${s.season_number}. Sezon</option>`).join('')}
                         </select>
                     </div>
                     <div class="control-group">
                         <label style="color: #888; font-size: 0.8rem; display: block; margin-bottom: 5px;">BÖLÜM SEÇİN</label>
-                        <select id="episode-select" onchange="updateTVPlayer(${id}, '${tv.name.replace(/'/g, "\\'")}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
+                        <select id="episode-select" onchange="updateTVPlayer(${id}, '${safeTvName}')" style="background: #222; color: white; border: 1px solid #333; padding: 8px 15px; border-radius: 8px; outline: none; min-width: 120px;">
                             <!-- Episodes will be populated here -->
                         </select>
+                    </div>
+                    <div class="search-options" style="margin-left: auto; display: flex; gap: 10px;">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent((tv.name || tv.title) + ' trailer')}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 Treyler</a>
                     </div>
                 </div>
                 <div class="details-grid">
@@ -2412,7 +2401,16 @@ async function loadPartyCatalog(isNew = true) {
             const episode = document.getElementById('episode-select').value;
             if(season && episode) {
                 document.getElementById('main-player').src = `https://vidsrc.cc/v2/embed/tv/${tvId}/${season}/${episode}`;
-                document.getElementById('search-links-container').innerHTML = generateSearchLinks(tvName, season, episode);
+                
+                const searchContainer = document.getElementById('tv-search-container');
+                if (searchContainer) {
+                    const baseQuery = `${tvName} ${season}. Sezon ${episode}. Bölüm`;
+                    searchContainer.innerHTML = `
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(baseQuery + ' Azərbaycanca izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #222; border: 1px solid #333; color: white;">🇦🇿 Google (AZ)</a>
+                        <a href="https://yandex.com/search/?text=${encodeURIComponent(baseQuery + ' Türkçe Dublaj izlə')}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem; background: #222; border: 1px solid #333; color: white;">🇹🇷 Yandex (TR)</a>
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(baseQuery)}" target="_blank" rel="noopener" class="player-btn alt-source" style="font-size: 0.8rem;">📺 YouTube</a>
+                    `;
+                }
             }
         }
 
