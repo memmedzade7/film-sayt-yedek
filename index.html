@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -34,6 +35,7 @@
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
     <style>
         /* Mood-a görə dəyişən dinamik arxa fon təbəqəsi */
@@ -65,6 +67,156 @@
             --text-muted: #9ca3af;
             --neon-glow: 0 0 20px rgba(168, 85, 247, 0.4);
             --party-color: #818cf8;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+        }
+
+        .kino-ekiz-btn {
+            background: linear-gradient(45deg, #bc13fe, #00f3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.8)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); }
+        }
+
+        .face-match-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            backdrop-filter: blur(15px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .face-match-container {
+            background: rgba(17, 24, 39, 0.95);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3), inset 0 0 15px rgba(188, 19, 254, 0.2);
+            border-radius: 30px;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .face-match-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, var(--neon-blue), transparent, var(--neon-purple), transparent);
+            animation: rotate 10s linear infinite;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .face-upload-area {
+            border: 2px dashed rgba(0, 243, 255, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .face-upload-area:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .match-result {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-images {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .result-img-box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+        }
+
+        .result-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .match-percentage {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .footer-minimal {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.7rem;
+            color: #4b5563;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 50px;
+        }
+        
+        .footer-minimal span {
+            margin: 0 10px;
+            cursor: pointer;
+        }
+
+        .footer-minimal span:hover {
+            color: var(--text-muted);
         }
 
         body {
@@ -1203,7 +1355,7 @@
                 <div class="nav-link" id="nav-series" onclick="switchTo('series')">Seriallar</div>
                 <div class="nav-link" id="nav-actors" onclick="switchTo('actors')">Aktyorlar</div>
                 <div class="nav-link" id="nav-globe" onclick="switchTo('globe')">Qlobus</div>
-                <div class="nav-link" id="nav-telif" onclick="openTelifModal()">Telif</div>
+                <div class="nav-link kino-ekiz-btn" id="nav-face-match" onclick="openFaceMatch()">🌟 Kinoəkizim</div>
                 <div class="nav-link party-nav" id="nav-party" onclick="switchTo('party')">Otaq </div>
             </nav>
         </div>
@@ -1241,6 +1393,56 @@
 
     <main id="main"></main>
     <div id="loader" class="loader">Yüklənir...</div>
+
+    <footer class="footer-minimal">
+        <div style="margin-bottom: 5px;">
+            <span>RM Film © 2026</span>
+            <span onclick="openTelifModal()" style="font-size: 0.6rem; opacity: 0.5; text-decoration: underline;">Təlif Hüquqları</span>
+        </div>
+        <p style="font-size: 0.5rem; opacity: 0.3; max-width: 600px; margin: 0 auto; line-height: 1.2;">
+            RM Film veb-saytı internetdə mövcud olan film və seriallar haqqında məlumat toplamaq və kənar mənbələrdən gələn video keçidləri təqdim etmək məqsədi daşıyır.
+        </p>
+    </footer>
+
+    <!-- Üz Analizi (Kinoəkizim) Modalı -->
+    <div id="face-match-modal" class="face-match-modal">
+        <div class="face-match-container">
+            <span class="close-modal" onclick="closeFaceMatch()">&times;</span>
+            <h2 style="text-align: center; color: var(--neon-blue); font-size: 2rem; font-weight: 900; margin-bottom: 10px;">ÜZ ANALİZİ</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Şəklinizi yükləyin və hansı məşhur aktyora bənzədiyinizi kəşf edin!</p>
+            
+            <div class="face-upload-area" onclick="document.getElementById('face-input').click()">
+                <div id="upload-placeholder">
+                    <span style="font-size: 3rem;">📸</span>
+                    <p>Şəkli bura sürükləyin və ya klikləyin</p>
+                </div>
+                <img id="user-preview" style="display: none; max-width: 100%; max-height: 300px; border-radius: 15px; margin: 0 auto;">
+                <input type="file" id="face-input" hidden accept="image/*" onchange="handleFaceUpload(event)">
+            </div>
+
+            <div id="analyzing-status" style="display: none; text-align: center; margin: 20px 0;">
+                <div class="loader" style="display: block; margin: 0 auto 10px;"></div>
+                <p id="status-text">Modellər yüklənir...</p>
+            </div>
+
+            <div id="match-result" class="match-result">
+                <div class="result-images">
+                    <div class="result-img-box">
+                        <img id="res-user-img" src="" alt="Siz">
+                    </div>
+                    <div style="font-size: 2rem; color: var(--neon-blue);">⚡</div>
+                    <div class="result-img-box">
+                        <img id="res-actor-img" src="" alt="Aktyor">
+                    </div>
+                </div>
+                <h3 id="res-actor-name" style="font-size: 1.5rem; color: #fff;">Aktyor Adı</h3>
+                <div class="match-percentage" id="res-percentage">0%</div>
+                <p style="color: var(--text-muted);">Bənzərlik dərəcəsi</p>
+            </div>
+
+            <div class="watermark">rm-film.vercel.app</div>
+        </div>
+    </div>
 
     <!-- Bilet Modalı -->
     <div id="ticket-modal" class="ticket-modal">
@@ -2725,6 +2927,146 @@ async function openActorDetails(id) {
 
         // Reklam əngəlləmə (sadə səviyyə)
         window.open = function() { return null; };
+
+        // Face Match Logic
+        let modelsLoaded = false;
+        async function loadFaceModels() {
+            if (modelsLoaded) return;
+            const status = document.getElementById('analyzing-status');
+            const statusText = document.getElementById('status-text');
+            status.style.display = 'block';
+            statusText.textContent = 'Modellər yüklənir...';
+            
+            try {
+                // User said 6 files in models folder. Usually it means these:
+                const MODEL_URL = '/models';
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
+                ]);
+                modelsLoaded = true;
+                statusText.textContent = 'Modellər hazır!';
+                setTimeout(() => { if(!isAnalyzing) status.style.display = 'none'; }, 1000);
+            } catch (err) {
+                console.error("Modellər yüklənmədi:", err);
+                statusText.textContent = 'Xəta! Modellər tapılmadı.';
+            }
+        }
+
+        function openFaceMatch() {
+            document.getElementById('face-match-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            loadFaceModels();
+        }
+
+        function closeFaceMatch() {
+            document.getElementById('face-match-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            // Reset
+            document.getElementById('upload-placeholder').style.display = 'block';
+            document.getElementById('user-preview').style.display = 'none';
+            document.getElementById('match-result').style.display = 'none';
+            document.getElementById('analyzing-status').style.display = 'none';
+        }
+
+        let isAnalyzing = false;
+        async function handleFaceUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imgUrl = e.target.result;
+                document.getElementById('upload-placeholder').style.display = 'none';
+                const preview = document.getElementById('user-preview');
+                preview.src = imgUrl;
+                preview.style.display = 'block';
+                
+                analyzeFace(preview);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function analyzeFace(userImgElement) {
+            if (!modelsLoaded) await loadFaceModels();
+            
+            isAnalyzing = true;
+            const status = document.getElementById('analyzing-status');
+            const statusText = document.getElementById('status-text');
+            const resultDiv = document.getElementById('match-result');
+            
+            status.style.display = 'block';
+            statusText.textContent = 'Üz analiz edilir...';
+            resultDiv.style.display = 'none';
+
+            try {
+                const detection = await faceapi.detectSingleFace(userImgElement).withFaceLandmarks().withFaceDescriptor();
+                
+                if (!detection) {
+                    statusText.textContent = 'Üz tapılmadı! Başqa şəkil yoxlayın.';
+                    isAnalyzing = false;
+                    return;
+                }
+
+                statusText.textContent = 'Məşhurlarla müqayisə edilir...';
+                
+                // Compare with actors from /actors folder
+                // Since we don't have a list of actors, we assume a predefined list or we fetch from the folder
+                // For this implementation, we will look for images in /actors/ list
+                // Since I can't see the folder, I'll provide a generic logic that the user can expand
+                
+                const actors = [
+                    { name: "Brad Pitt", img: "/actors/brad_pitt.jpg" },
+                    { name: "Angelina Jolie", img: "/actors/angelina_jolie.jpg" },
+                    { name: "Leonardo DiCaprio", img: "/actors/leonardo_dicaprio.jpg" },
+                    { name: "Scarlett Johansson", img: "/actors/scarlett_johansson.jpg" },
+                    { name: "Tom Cruise", img: "/actors/tom_cruise.jpg" },
+                    { name: "Robert Downey Jr.", img: "/actors/rdj.jpg" }
+                ];
+
+                let bestMatch = { distance: 1, actor: null };
+
+                for (const actor of actors) {
+                    try {
+                        const actorImg = await faceapi.fetchImage(actor.img);
+                        const actorDetection = await faceapi.detectSingleFace(actorImg).withFaceLandmarks().withFaceDescriptor();
+                        
+                        if (actorDetection) {
+                            const distance = faceapi.euclideanDistance(detection.descriptor, actorDetection.descriptor);
+                            if (distance < bestMatch.distance) {
+                                bestMatch = { distance, actor };
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Aktyor ${actor.name} yüklənmədi:`, e);
+                    }
+                }
+
+                if (bestMatch.actor) {
+                    const similarity = Math.round((1 - bestMatch.distance) * 100);
+                    const finalSimilarity = similarity < 0 ? 0 : (similarity > 99 ? 99 : similarity);
+
+                    document.getElementById('res-user-img').src = userImgElement.src;
+                    document.getElementById('res-actor-img').src = bestMatch.actor.img;
+                    document.getElementById('res-actor-name').textContent = bestMatch.actor.name;
+                    document.getElementById('res-percentage').textContent = finalSimilarity + "%";
+                    
+                    status.style.display = 'none';
+                    resultDiv.style.display = 'block';
+                } else {
+                    statusText.textContent = 'Müqayisə üçün aktyor tapılmadı.';
+                }
+
+            } catch (err) {
+                console.error("Analiz xətası:", err);
+                statusText.textContent = 'Analiz zamanı xəta baş verdi.';
+            }
+            isAnalyzing = false;
+        }
 
         init();
     </script>
