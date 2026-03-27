@@ -72,16 +72,12 @@
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            overflow-x: hidden;
-            width: 100%;
-        }
-
-        @media (min-width: 1201px) {
-            body { min-width: 1200px; overflow-x: auto; }
+            overflow-x: auto;
+            min-width: 1200px;
         }
 
         header {
-            padding: 1rem 5%;
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -91,7 +87,6 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            height: 70px;
         }
 
         .brand {
@@ -101,7 +96,7 @@
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 2.4rem;
             font-weight: 900;
             letter-spacing: -2px;
             margin: 0;
@@ -489,69 +484,80 @@
         
         /* --- TƏKMİLLƏŞDİRİLMİŞ OTAQ STRUKTURU --- */
         .watch-party-layout {
-            display: flex;
-            width: 100vw;
-            height: calc(100dvh - 70px); 
+            display: flex !important;
+            flex-direction: row !important;
+            width: 100vw !important;
+            height: calc(100dvh - 85px) !important; 
             background: #000;
             overflow: hidden;
             position: relative;
         }
-
-        .video-side {
-            display: flex;
-            flex-direction: column;
-            background: #000;
-            overflow: hidden;
-        }
-
-        .chat-container {
-            background: #0d1117;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #30363d;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-        }
-
+        
         @media (max-width: 800px) {
             .watch-party-layout {
-                flex-direction: column;
-                height: 100dvh;
-                position: fixed;
+                flex-direction: column !important;
+                height: 100dvh !important;
+                position: fixed !important;
                 top: 0;
                 left: 0;
+                right: 0;
+                bottom: 0;
                 z-index: 2000;
             }
             .video-side {
-                width: 100%;
-                height: auto;
+                width: 100% !important;
+                height: auto !important;
+                flex-shrink: 0;
             }
             .chat-container {
-                width: 100%;
-                flex-grow: 1;
-                border-left: none;
-                border-top: 1px solid #30363d;
+                width: 100% !important;
+                min-width: 100% !important;
+                flex: 1 !important;
+                border-left: none !important;
+                border-top: 1px solid #30363d !important;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+            #chat-messages {
+                flex: 1;
+                overflow-y: auto;
+            }
+            .chat-input-area {
+                flex-shrink: 0;
+                padding-bottom: env(safe-area-inset-bottom, 20px) !important;
             }
         }
         
-        @media (min-width: 801px) {
-            .video-side {
-                width: 75%;
-                height: 100%;
-            }
-            .chat-container {
-                width: 25%;
-                height: 100%;
-            }
+        .video-side {
+            flex: 1 !important; 
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            order: 1;
+        }
+
+        /* --- PROFESSIONAL CHAT DESIGN --- */
+        .chat-container {
+            width: 400px !important; 
+            min-width: 400px;
+            background: #0d1117;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border-left: 1px solid #30363d;
+            order: 2;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
 
         .chat-header { 
-            padding: 12px 20px; 
+            padding: 20px; 
             background: #161b22; 
             border-bottom: 1px solid #30363d; 
             text-align: left;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #fff;
             display: flex;
             align-items: center;
@@ -630,10 +636,9 @@
         .chat-msg.mine .msg-time { color: rgba(255,255,255,0.6); }
 
         .chat-input-area { 
-            padding: 12px 20px; 
+            padding: 20px; 
             background: #161b22; 
             border-top: 1px solid #30363d;
-            padding-bottom: env(safe-area-inset-bottom, 12px);
         }
         
         .chat-controls { display: flex; gap: 12px; flex-direction: column; }
@@ -677,24 +682,16 @@
         }
 
         #party-player-container {
+            flex: 1;
             width: 100%;
+            height: 100%;
             position: relative;
-            background: #000;
-        }
-        
-        @media (min-width: 801px) {
-            #party-player-container {
-                flex: 1;
-            }
         }
 
-        #party-player-container iframe, #party-player-container video {
+        #party-player-container iframe {
             width: 100% !important;
             height: 100% !important;
             border: none;
-        }
-        
-        #party-player-container iframe {
             position: absolute;
             top: 0;
             left: 0;
@@ -1575,36 +1572,51 @@
         let partyCatalogMode = 'movies';
         let isCatalogLoading = false;
         let catalogType = 'movie';
+        let isProcessingRemoteControl = false;
+
+        const genres = [
+            { id: 28, name: 'Aksiyon' }, { id: 12, name: 'Macəra' },
+            { id: 16, name: 'Animasiya' }, { id: 35, name: 'Komediya' },
+            { id: 80, name: 'Cinayət' }, { id: 18, name: 'Dram' },
+            { id: 27, name: 'Qorxu' }, { id: 878, name: 'Fantastika' },
+            { id: 10749, name: 'Romantik' }
+        ];
+
+        const chatEmojis = ["😊", "🔥", "🍿", "😂", "😢", "😱", "😍", "🤝", "📽️", "🎬", "💯", "🎲"];
 
         // --- STATE QORUNMASI VƏ AVTO-REJOIN ---
         function checkSavedParty() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomFromUrl = urlParams.get('room');
             const savedRoom = localStorage.getItem('watch-party-room');
             const savedUser = localStorage.getItem('watch-party-user');
             const savedIsHost = localStorage.getItem('watch-party-is-host') === 'true';
+
+            if (roomFromUrl) {
+                currentRoomId = roomFromUrl;
+                if (savedUser && roomFromUrl === savedRoom) {
+                    myUsername = savedUser;
+                    isHost = savedIsHost;
+                    switchTo('party');
+                    setTimeout(() => initPeer(isHost ? 'host' : 'join', roomFromUrl), 500);
+                } else {
+                    switchTo('party');
+                }
+                return;
+            }
 
             if (savedRoom && savedUser) {
                 myUsername = savedUser;
                 isHost = savedIsHost;
                 currentRoomId = savedRoom;
                 
-                // URL-də room parametrinə baxaq
-                const urlParams = new URLSearchParams(window.location.search);
-                const roomFromUrl = urlParams.get('room');
-                
-                if (roomFromUrl && roomFromUrl !== savedRoom) {
-                    // Əgər fərqli otaq linkinə kliklənibsə, köhnəni silək
-                    localStorage.removeItem('watch-party-room');
-                    return;
-                }
-
-                // Avtomatik otağa qayıt
                 if (confirm(`${savedRoom} otağına yenidən qoşulmaq istəyirsiniz?`)) {
                     switchTo('party');
-                    setTimeout(() => {
-                        initPeer(isHost ? 'host' : 'join', savedRoom);
-                    }, 500);
+                    setTimeout(() => initPeer(isHost ? 'host' : 'join', savedRoom), 500);
                 } else {
-                    localStorage.clear();
+                    localStorage.removeItem('watch-party-room');
+                    localStorage.removeItem('watch-party-user');
+                    localStorage.removeItem('watch-party-is-host');
                 }
             }
         }
@@ -1620,7 +1632,7 @@
         }
 
         function initPeer(type, existingRoomId = null) {
-            if (peer) {
+            if (peer && !peer.destroyed) {
                 try { peer.destroy(); } catch(e) {}
             }
             
@@ -1631,7 +1643,7 @@
                 console.log('Peer opened with ID:', id);
                 const roomId = existingRoomId || (type === 'host' ? id : document.getElementById('join-room-id').value);
                 
-                if (!roomId) return alert("Otaq ID tapılmadı!");
+                if (!roomId) return showNotify("Otaq ID tapılmadı!");
                 
                 currentRoomId = roomId;
                 savePartyState(currentRoomId, myUsername, isHost);
@@ -1648,42 +1660,51 @@
 
             peer.on('disconnected', () => {
                 console.log('Peer disconnected, attempting reconnect...');
-                showNotify('Bağlantı kəsildi, bərpa olunur...');
-                peer.reconnect();
+                if (!peer.destroyed) peer.reconnect();
             });
 
             peer.on('error', err => {
-                console.error('Peer error:', err);
+                console.error('Peer error:', err.type);
                 if (err.type === 'peer-unavailable') {
                     showNotify('Otaq tapılmadı və ya host ayrıldı.');
-                    localStorage.clear();
-                } else {
-                    showNotify('Bağlantı xətası: ' + err.type);
+                    localStorage.removeItem('watch-party-room');
+                } else if (err.type === 'network' || err.type === 'server-error') {
                     clearTimeout(reconnectTimeout);
                     reconnectTimeout = setTimeout(() => {
                         if (currentRoomId) initPeer(isHost ? 'host' : 'join', currentRoomId);
-                    }, 5000);
+                    }, 3000);
                 }
             });
         }
 
-        // Mobil yuxu rejimi və ya internet kəsilməsi üçün
+        // Mobil cihazlar üçün bağlantı bərpası
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'visible') {
+                if (currentRoomId && (!peer || peer.disconnected || peer.destroyed)) {
+                    console.log('App resumed, restoring connection...');
+                    initPeer(isHost ? 'host' : 'join', currentRoomId);
+                }
+            }
+        }
+
         window.addEventListener('online', () => {
             if (currentRoomId && (!peer || peer.disconnected)) {
-                console.log('Network back online, re-initializing peer...');
                 initPeer(isHost ? 'host' : 'join', currentRoomId);
             }
         });
+        document.addEventListener('visibilitychange', handleVisibilityChange);
 
-        const genres = [
-            { id: 28, name: 'Aksiyon' }, { id: 12, name: 'Macəra' },
-            { id: 16, name: 'Animasiya' }, { id: 35, name: 'Komediya' },
-            { id: 80, name: 'Cinayət' }, { id: 18, name: 'Dram' },
-            { id: 27, name: 'Qorxu' }, { id: 878, name: 'Fantastika' },
-            { id: 10749, name: 'Romantik' }
-        ];
-
-        const chatEmojis = ["😊", "🔥", "🍿", "😂", "😢", "😱", "😍", "🤝", "📽️", "🎬", "💯", "🎲"];
+        // Mobil klaviatura UI tənzimləməsi
+         if (window.visualViewport) {
+             window.visualViewport.addEventListener('resize', () => {
+                 const layout = document.querySelector('.watch-party-layout');
+                 if (layout && window.innerWidth <= 800) {
+                     layout.style.height = `${window.visualViewport.height}px`;
+                     const chatMsgs = document.getElementById('chat-messages');
+                     if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+                 }
+             });
+         }
 
         function init() {
             renderGenres();
@@ -1831,7 +1852,7 @@
                         
                         <div id="notify-container" class="notify-container"></div>
                         
-                        <div id="party-player-container" class="aspect-video w-full bg-black">
+                        <div id="party-player-container">
                             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#555; background:#05070a;">
                                 <div style="font-size:3rem; margin-bottom:15px;">📽️</div>
                                 <div style="font-weight:bold;">Film hələ başladılmayıb</div>
@@ -1862,10 +1883,12 @@
 
         // Sinxron hərəkət funksiyası
         function controlAction(action, time = null) {
+            if (isProcessingRemoteControl) return;
+
             const video = document.getElementById('main-video');
             let currentTime = time;
             
-            if (video && !time) {
+            if (video && time === null) {
                 currentTime = video.currentTime;
             }
 
@@ -1878,7 +1901,6 @@
             };
             broadcast(data);
             
-            // Öz çatına da əlavə et
             const msg = formatControlMessage(myUsername, action, currentTime);
             addChatMessage("Sistem", msg, true);
         }
@@ -2106,10 +2128,7 @@ async function loadPartyCatalog(isNew = true) {
                 
                 if(data.type === 'chat') {
                     addChatMessage(data.user, data.msg);
-                    // Host rebroadcasts to ALL other connections (not sender)
-                    if(isHost) {
-                        broadcast(data, conn);
-                    }
+                    if(isHost) broadcast(data, conn);
                 } 
                 else if(data.type === 'sync-movie' || data.type === 'sync-tv' || data.type === 'sync-external') {
                     syncPartyPlayer(data.embedUrl);
@@ -2123,38 +2142,30 @@ async function loadPartyCatalog(isNew = true) {
                     
                     const video = document.getElementById('main-video');
                     if(video) {
+                        isProcessingRemoteControl = true;
                         const latency = (Date.now() - (data.timestamp || Date.now())) / 1000;
-                        const targetTime = parseFloat(data.time) + latency;
+                        const targetTime = parseFloat(data.time) + (data.action === 'play' ? latency : 0);
                         
-                        if(data.action === 'play') video.play();
-                        if(data.action === 'pause') video.pause();
-                        if(data.action === 'seek' || Math.abs(video.currentTime - targetTime) > 2) {
+                        if(data.action === 'play') {
+                            if (video.paused) video.play();
+                            if (Math.abs(video.currentTime - targetTime) > 2) {
+                                video.currentTime = targetTime;
+                            }
+                        }
+                        if(data.action === 'pause') {
+                            if (!video.paused) video.pause();
+                            video.currentTime = data.time;
+                        }
+                        if(data.action === 'seek') {
                             video.currentTime = targetTime;
                         }
+                        
+                        setTimeout(() => { isProcessingRemoteControl = false; }, 500);
                     }
 
                     if(data.user) {
                         const msg = formatControlMessage(data.user, data.action, data.time);
                         addChatMessage("Sistem", msg, true);
-                        showNotify(msg);
-                    }
-                }
-                else if(data.type === 'typing') {
-                    // Handle typing indicators
-                    let typingMsg = document.querySelector('.chat-msg.typing');
-                    if(data.isTyping) {
-                        if(!typingMsg || typingMsg.dataset.user !== data.user) {
-                            if(typingMsg) typingMsg.remove();
-                            typingMsg = document.createElement('div');
-                            typingMsg.className = 'chat-msg typing';
-                            typingMsg.dataset.user = data.user;
-                            typingMsg.innerHTML = `<div class="msg-info"><span class="msg-user">${data.user}</span></div><div>${data.user} yazır...</div>`;
-                            document.getElementById('chat-messages').appendChild(typingMsg);
-                        }
-                    } else {
-                        if(typingMsg && typingMsg.dataset.user === data.user) {
-                            typingMsg.remove();
-                        }
                     }
                 }
             });
@@ -2162,8 +2173,7 @@ async function loadPartyCatalog(isNew = true) {
             // Connection close handling
             conn.on('close', () => {
                 connections = connections.filter(c => c !== conn);
-                addChatMessage('Sistem', `${data.user || 'İştirakçı'} otağı tərk etdi`, true);
-                updateConnectionStatus();
+                addChatMessage('Sistem', `İştirakçı otağı tərk etdi`, true);
             });
 
             conn.on('error', err => {
