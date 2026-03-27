@@ -493,32 +493,7 @@
             position: relative;
         }
         
-        /* --- ORIENTATION OVERLAY --- */
-        #orientation-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 999999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-        }
-        #orientation-overlay .rotate-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            animation: rotate-anim 2s linear infinite;
-        }
-        @keyframes rotate-anim {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+
         
         .video-side {
             flex: 1 !important; 
@@ -1705,6 +1680,18 @@
         }
 
         function renderActiveParty(roomId) {
+            document.body.classList.add('watch-party-active');
+
+            if (!document.getElementById('orientation-alert-overlay')) {
+                const overlayHtml = `
+                <div id="orientation-alert-overlay">
+                    <div class="orientation-alert-content">
+                        <div class="rotate-icon">🔄</div>
+                        <p style="font-size: 1.2rem; padding: 0 20px;">Daha yaxşı izləmə təcrübəsi üçün<br>telefonu yan çevirin</p>
+                    </div>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', overlayHtml);
+            }
             main.innerHTML = `
                 <div id="orientation-overlay">
                     <div class="rotate-icon">🔄</div>
@@ -1766,8 +1753,7 @@
             document.getElementById('chat-input').addEventListener('keypress', e => { if(e.key === 'Enter') sendChatMessage(); });
             document.getElementById('external-url-input').addEventListener('keypress', e => { if(e.key === 'Enter') startExternalLink(); });
             
-            // Initial orientation check
-            checkOrientation();
+
         }
 
         function checkOrientation() {
