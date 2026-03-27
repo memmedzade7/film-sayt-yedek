@@ -2972,8 +2972,7 @@ async function openActorDetails(id) {
         // Face Match Logic
         let modelsLoaded = false;
         let labeledFaceDescriptors = [];
-        const modelPath = window.location.hostname.includes('github.io') ? '/film-sayt-yedek/models' : '/models';
-        const actorPath = window.location.hostname.includes('github.io') ? '/film-sayt-yedek/actors' : '/actors';
+        const basePath = window.location.pathname.includes('film-sayt-yedek') ? '/film-sayt-yedek' : '';
 
         async function loadFaceModels() {
             if (modelsLoaded) return;
@@ -2984,6 +2983,9 @@ async function openActorDetails(id) {
             
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
+                const modelPath = basePath + '/models';
+                const actorPath = basePath + '/actors';
+                
                 await Promise.all([
                     faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath),
                     faceapi.nets.faceLandmark68Net.loadFromUri(modelPath),
@@ -3116,10 +3118,10 @@ async function openActorDetails(id) {
                         
                         // Map name back to image
                         const actorMap = {
-                            "Al Pacino": actorPath + "/al-pacino.jpg",
-                            "Brad Pitt": actorPath + "/brad-pitt.jpg",
-                            "Leonardo DiCaprio": actorPath + "/leonardo-dicaprio.jpg",
-                            "Will Smith": actorPath + "/will-smith.jpg"
+                            "Al Pacino": basePath + "/actors/al-pacino.jpg",
+                            "Brad Pitt": basePath + "/actors/brad-pitt.jpg",
+                            "Leonardo DiCaprio": basePath + "/actors/leonardo-dicaprio.jpg",
+                            "Will Smith": basePath + "/actors/will-smith.jpg"
                         };
 
                         document.getElementById('res-user-img').src = userImgElement.src;
