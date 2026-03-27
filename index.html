@@ -1639,6 +1639,7 @@
                 try { peer.destroy(); } catch(e) {}
             }
             
+            connections = []; // Köhnə bağlantıları təmizləyirik
             isHost = (type === 'host');
             peer = new Peer();
 
@@ -2126,6 +2127,14 @@ async function loadPartyCatalog(isNew = true) {
         }
 
         function setupConnHandlers(conn) {
+            conn.on('open', () => {
+                console.log('Connection established with:', conn.peer);
+                if (!isHost) {
+                    connections = [conn];
+                    addChatMessage('Sistem', 'Otağa qoşuldunuz!', true);
+                }
+            });
+
             conn.on('data', data => {
                 console.log('Received:', data.type, 'from', data.user || 'unknown');
                 
@@ -2183,8 +2192,6 @@ async function loadPartyCatalog(isNew = true) {
                 console.error('Connection error:', err);
                 addChatMessage('Sistem', 'Bağlantı xətası', true);
             });
-
-            if(!isHost) connections = [conn];
         }
 
         function broadcast(data, excludeConn = null) {
@@ -2205,6 +2212,8 @@ async function loadPartyCatalog(isNew = true) {
         // Helper: Safe message sending with validation
         function safeSend(data, targetConnections = null) {
             const targets = targetConnections || connections;
+            if (targets.length === 0) return true; // Heç kim yoxdur, amma xəta deyil
+            
             let sent = 0;
             for(let conn of targets) {
                 if(conn && conn.open) {
