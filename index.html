@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -71,12 +72,16 @@
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            overflow-x: auto;
-            min-width: 1200px;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        @media (min-width: 1201px) {
+            body { min-width: 1200px; overflow-x: auto; }
         }
 
         header {
-            padding: 1.5rem 5%;
+            padding: 1rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -86,6 +91,7 @@
             position: sticky;
             top: 0;
             z-index: 1000;
+            height: 70px;
         }
 
         .brand {
@@ -95,7 +101,7 @@
         }
 
         .logo {
-            font-size: 2.4rem;
+            font-size: 1.8rem;
             font-weight: 900;
             letter-spacing: -2px;
             margin: 0;
@@ -486,10 +492,31 @@
             display: flex !important;
             flex-direction: row !important;
             width: 100vw !important;
-            height: calc(100vh - 85px) !important; 
+            height: calc(100dvh - 70px) !important; 
             background: #000;
             overflow: hidden;
             position: relative;
+        }
+
+        @media (max-width: 800px) {
+            .watch-party-layout {
+                flex-direction: column !important;
+                height: 100dvh !important;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 2000;
+            }
+            .chat-container {
+                width: 100% !important;
+                min-width: 100% !important;
+                height: 40% !important;
+                border-left: none !important;
+                border-top: 1px solid #30363d !important;
+            }
+            .video-side {
+                height: 60% !important;
+            }
         }
         
         .video-side {
@@ -499,6 +526,7 @@
             display: flex;
             flex-direction: column;
             order: 1;
+            overflow: hidden;
         }
 
         /* --- PROFESSIONAL CHAT DESIGN --- */
@@ -512,15 +540,16 @@
             border-left: 1px solid #30363d;
             order: 2;
             box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            transition: height 0.3s ease;
         }
 
         .chat-header { 
-            padding: 20px; 
+            padding: 12px 20px; 
             background: #161b22; 
             border-bottom: 1px solid #30363d; 
             text-align: left;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #fff;
             display: flex;
             align-items: center;
@@ -599,9 +628,10 @@
         .chat-msg.mine .msg-time { color: rgba(255,255,255,0.6); }
 
         .chat-input-area { 
-            padding: 20px; 
+            padding: 12px 20px; 
             background: #161b22; 
             border-top: 1px solid #30363d;
+            padding-bottom: env(safe-area-inset-bottom, 12px);
         }
         
         .chat-controls { display: flex; gap: 12px; flex-direction: column; }
@@ -1528,11 +1558,112 @@
         let connections = []; 
         let myUsername = "";
         let isHost = false;
+        let currentRoomId = "";
+        let reconnectTimeout = null;
         let catalogPage = 1;
         let catalogQuery = "";
         let partyCatalogMode = 'movies';
         let isCatalogLoading = false;
         let catalogType = 'movie';
+
+        // --- STATE QORUNMASI VƏ AVTO-REJOIN ---
+        function checkSavedParty() {
+            const savedRoom = localStorage.getItem('watch-party-room');
+            const savedUser = localStorage.getItem('watch-party-user');
+            const savedIsHost = localStorage.getItem('watch-party-is-host') === 'true';
+
+            if (savedRoom && savedUser) {
+                myUsername = savedUser;
+                isHost = savedIsHost;
+                currentRoomId = savedRoom;
+                
+                // URL-də room parametrinə baxaq
+                const urlParams = new URLSearchParams(window.location.search);
+                const roomFromUrl = urlParams.get('room');
+                
+                if (roomFromUrl && roomFromUrl !== savedRoom) {
+                    // Əgər fərqli otaq linkinə kliklənibsə, köhnəni silək
+                    localStorage.removeItem('watch-party-room');
+                    return;
+                }
+
+                // Avtomatik otağa qayıt
+                if (confirm(`${savedRoom} otağına yenidən qoşulmaq istəyirsiniz?`)) {
+                    switchTo('party');
+                    setTimeout(() => {
+                        initPeer(isHost ? 'host' : 'join', savedRoom);
+                    }, 500);
+                } else {
+                    localStorage.clear();
+                }
+            }
+        }
+
+        function savePartyState(room, user, host) {
+            localStorage.setItem('watch-party-room', room);
+            localStorage.setItem('watch-party-user', user);
+            localStorage.setItem('watch-party-is-host', host);
+            
+            const url = new URL(window.location);
+            url.searchParams.set('room', room);
+            window.history.replaceState({}, '', url);
+        }
+
+        function initPeer(type, existingRoomId = null) {
+            if (peer) {
+                try { peer.destroy(); } catch(e) {}
+            }
+            
+            isHost = (type === 'host');
+            peer = new Peer();
+
+            peer.on('open', id => {
+                console.log('Peer opened with ID:', id);
+                const roomId = existingRoomId || (type === 'host' ? id : document.getElementById('join-room-id').value);
+                
+                if (!roomId) return alert("Otaq ID tapılmadı!");
+                
+                currentRoomId = roomId;
+                savePartyState(currentRoomId, myUsername, isHost);
+                
+                if (type === 'host' && !existingRoomId) {
+                    finalizePartyUI(id);
+                    listenForConnections();
+                } else {
+                    const conn = peer.connect(roomId);
+                    setupConnHandlers(conn);
+                    finalizePartyUI(roomId);
+                }
+            });
+
+            peer.on('disconnected', () => {
+                console.log('Peer disconnected, attempting reconnect...');
+                showNotify('Bağlantı kəsildi, bərpa olunur...');
+                peer.reconnect();
+            });
+
+            peer.on('error', err => {
+                console.error('Peer error:', err);
+                if (err.type === 'peer-unavailable') {
+                    showNotify('Otaq tapılmadı və ya host ayrıldı.');
+                    localStorage.clear();
+                } else {
+                    showNotify('Bağlantı xətası: ' + err.type);
+                    clearTimeout(reconnectTimeout);
+                    reconnectTimeout = setTimeout(() => {
+                        if (currentRoomId) initPeer(isHost ? 'host' : 'join', currentRoomId);
+                    }, 5000);
+                }
+            });
+        }
+
+        // Mobil yuxu rejimi və ya internet kəsilməsi üçün
+        window.addEventListener('online', () => {
+            if (currentRoomId && (!peer || peer.disconnected)) {
+                console.log('Network back online, re-initializing peer...');
+                initPeer(isHost ? 'host' : 'join', currentRoomId);
+            }
+        });
 
         const genres = [
             { id: 28, name: 'Aksiyon' }, { id: 12, name: 'Macəra' },
@@ -1548,6 +1679,7 @@
             renderGenres();
             getMovies(currentApiUrl);
             updateWatchlistCount();
+            checkSavedParty();
             window.addEventListener('scroll', () => {
                 if (isLoading || isFavoritesView || currentMode === 'party' || currentMode === 'globe') return;
                 if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
@@ -1649,24 +1781,7 @@
             document.getElementById('room-setup').classList.add('open');
 
             setTimeout(() => {
-                if(type === 'host') {
-                    isHost = true;
-                    peer = new Peer();
-                    peer.on('open', id => {
-                        finalizePartyUI(id);
-                        listenForConnections();
-                    });
-                } else {
-                    const rid = document.getElementById('join-room-id').value;
-                    if(!rid) return alert("ID daxil edilməyib!");
-                    isHost = false;
-                    peer = new Peer();
-                    peer.on('open', () => {
-                        const conn = peer.connect(rid);
-                        setupConnHandlers(conn);
-                        finalizePartyUI(rid);
-                    });
-                }
+                initPeer(type);
             }, 800);
         }
 
@@ -1737,11 +1852,24 @@
 
         // Sinxron hərəkət funksiyası
         function controlAction(action, time = null) {
-            const data = { type: 'video-control', action: action, user: myUsername, time: time };
+            const video = document.getElementById('main-video');
+            let currentTime = time;
+            
+            if (video && !time) {
+                currentTime = video.currentTime;
+            }
+
+            const data = { 
+                type: 'video-control', 
+                action: action, 
+                user: myUsername, 
+                time: currentTime,
+                timestamp: Date.now() 
+            };
             broadcast(data);
             
             // Öz çatına da əlavə et
-            const msg = formatControlMessage(myUsername, action, time);
+            const msg = formatControlMessage(myUsername, action, currentTime);
             addChatMessage("Sistem", msg, true);
         }
 
@@ -1982,6 +2110,19 @@ async function loadPartyCatalog(isNew = true) {
                 }
                 else if(data.type === 'video-control') {
                     if(isHost) broadcast(data, conn);
+                    
+                    const video = document.getElementById('main-video');
+                    if(video) {
+                        const latency = (Date.now() - (data.timestamp || Date.now())) / 1000;
+                        const targetTime = parseFloat(data.time) + latency;
+                        
+                        if(data.action === 'play') video.play();
+                        if(data.action === 'pause') video.pause();
+                        if(data.action === 'seek' || Math.abs(video.currentTime - targetTime) > 2) {
+                            video.currentTime = targetTime;
+                        }
+                    }
+
                     if(data.user) {
                         const msg = formatControlMessage(data.user, data.action, data.time);
                         addChatMessage("Sistem", msg, true);
@@ -2133,12 +2274,17 @@ async function loadPartyCatalog(isNew = true) {
             // Check if it's a direct video file (ends with extension)
             if (url.match(/\.(mp4|mkv|webm|mov|avi)$/i)) {
                 container.innerHTML = `
-                    <video controls autoplay style="width:100%; height:100%; background:#000;">
+                    <video id="main-video" controls autoplay style="width:100%; height:100%; background:#000;">
                         <source src="${url}" type="video/mp4">
                         Sizin brauzeriniz bu videonu dəstəkləmir.
                     </video>`;
+                
+                const v = document.getElementById('main-video');
+                v.onplay = () => controlAction('play');
+                v.onpause = () => controlAction('pause');
+                v.onseeked = () => controlAction('seek');
             } else {
-                container.innerHTML = `<iframe src="${url}" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>`;
+                container.innerHTML = `<iframe id="main-iframe" src="${url}" allow-forms allow-scripts allow-same-origin sandbox="allow-forms allow-scripts allow-same-origin" allowfullscreen></iframe>`;
             }
         }
 
