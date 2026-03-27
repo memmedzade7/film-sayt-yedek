@@ -72,22 +72,42 @@
         }
 
         .kino-ekiz-btn {
-            background: linear-gradient(135deg, #bc13fe, #00f3ff) !important;
-            color: white !important;
+            background: rgba(188, 19, 254, 0.1) !important;
+            border: 1px solid rgba(0, 243, 255, 0.4) !important;
+            color: #00f3ff !important;
             font-weight: 800 !important;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            animation: pulse 2s infinite;
-            -webkit-background-clip: initial !important;
-            -webkit-text-fill-color: initial !important;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2), inset 0 0 10px rgba(188, 19, 254, 0.2);
+            animation: pulse-pro 3s infinite;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            padding: 6px 12px !important;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 5px rgba(188, 19, 254, 0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.8); transform: scale(1.02); }
-            100% { box-shadow: 0 0 5px rgba(188, 19, 254, 0.5); transform: scale(1); }
+        .kino-ekiz-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: rotate(25deg);
+            animation: shine-btn 4s infinite;
+        }
+
+        @keyframes shine-btn {
+            0% { left: -100%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        @keyframes pulse-pro {
+            0% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); border-color: rgba(0, 243, 255, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(188, 19, 254, 0.5); border-color: rgba(188, 19, 254, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.2); border-color: rgba(0, 243, 255, 0.4); }
         }
 
         .face-match-modal {
@@ -243,16 +263,17 @@
         }
 
         header {
-            padding: 1.5rem 5%;
+            padding: 1rem 4%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(17, 24, 39, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: sticky;
             top: 0;
             z-index: 1000;
+            height: 80px;
         }
 
         .brand {
@@ -292,32 +313,34 @@
 
         .nav-menu {
             display: flex;
-            gap: 25px;
-            margin-left: 30px;
+            gap: 12px;
+            margin-left: 20px;
             align-items: center;
         }
         .nav-link {
             color: var(--text-muted);
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
-            padding: 8px 15px;
+            transition: all 0.3s ease;
+            padding: 6px 10px;
             border-radius: 8px;
             display: flex;
             align-items: center;
-            height: 36px;
+            height: 32px;
+            font-size: 0.85rem;
             box-sizing: border-box;
+            white-space: nowrap;
         }
         .nav-link:hover, .nav-link.active {
             color: white;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
         }
 
         .nav-link.party-nav {
             color: var(--party-color);
-            border: 1px solid rgba(129, 140, 248, 0.3);
-            box-shadow: inset 0 0 10px rgba(129, 140, 248, 0.1);
+            border: 1px solid rgba(129, 140, 248, 0.2);
+            box-shadow: inset 0 0 10px rgba(129, 140, 248, 0.05);
         }
         .nav-link.party-nav:hover {
             background: rgba(129, 140, 248, 0.15);
@@ -387,17 +410,31 @@
             border: none;
         }
 
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
         .search {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 50px;
-            padding: 12px 25px;
+            padding: 10px 20px;
             color: white;
-            width: 280px;
+            width: 200px;
             transition: 0.4s;
+            font-size: 0.85rem;
         }
 
-        .search:focus { width: 380px; outline: none; border-color: #a855f7; box-shadow: var(--neon-glow); }
+        .search:focus { width: 300px; outline: none; border-color: #a855f7; box-shadow: var(--neon-glow); }
+
+        .creator-text {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
 
         .genres-container { display: flex; justify-content: center; gap: 10px; padding: 20px 5%; overflow-x: auto; }
 
@@ -638,18 +675,6 @@
             padding: 10px 25px; cursor: pointer; border-radius: 12px; transition: 0.4s;
         }
         .tab-btn.active { background: #fff; color: #000; }
-
-        .creator-text {
-            color: var(--text-muted);
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 1.5px; 
-            margin-bottom: 6px; 
-            text-transform: uppercase; 
-            text-align: right;
-            width: 100%;
-        }
-        .search-container { display: flex; flex-direction: column; align-items: flex-end; }
 
         .loader { grid-column: 1/-1; text-align: center; padding: 20px; display: none; }
         
@@ -2946,6 +2971,8 @@ async function openActorDetails(id) {
 
         // Face Match Logic
         let modelsLoaded = false;
+        let labeledFaceDescriptors = [];
+
         async function loadFaceModels() {
             if (modelsLoaded) return;
             const status = document.getElementById('analyzing-status');
@@ -2955,37 +2982,43 @@ async function openActorDetails(id) {
             
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
-                // Modellərin ünvanı
                 const MODEL_URL = '/models';
-                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${window.location.origin}${MODEL_URL}`);
+                await Promise.all([
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
+                ]);
                 
-                // Hər bir modeli ayrıca yükləyib loglayırıq ki, xətanı tam görək
-                try {
-                    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-                    console.log('ssdMobilenetv1 yuklendi!');
-                    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-                    console.log('faceLandmark68Net yuklendi!');
-                    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-                    console.log('faceRecognitionNet yuklendi!');
-                    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-                    console.log('faceExpressionNet yuklendi!');
-                    await faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL);
-                    console.log('ageGenderNet yuklendi!');
-                    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-                    console.log('tinyFaceDetector yuklendi!');
-                    
-                    console.log('Modellər public qovluğundan uğurla yükləndi');
-                } catch (e) {
-                    console.error('Model yuklenmedi! Xəta:', e);
-                    throw e;
-                }
+                console.log('Modellər public qovluğundan uğurla yükləndi');
+                statusText.textContent = 'Aktyor bazası hazırlanır...';
                 
+                // Pre-load actor descriptors
+                const actors = [
+                    { name: "Al Pacino", img: "/actors/al-pacino-1672819009.jpg" },
+                    { name: "Brad Pitt", img: "/actors/brad-pitt-1533565798.jpg" },
+                    { name: "Leonardo DiCaprio", img: "/actors/leonardo-dicaprio-1659693613.jpg" },
+                    { name: "Will Smith", img: "/actors/smith (1).jpg" }
+                ];
+
+                labeledFaceDescriptors = await Promise.all(
+                    actors.map(async actor => {
+                        const img = await faceapi.fetchImage(actor.img);
+                        const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                        if (!fullFaceDescription) {
+                            console.warn(`Üz tapılmadı: ${actor.name}`);
+                            return null;
+                        }
+                        return new faceapi.LabeledFaceDescriptors(actor.name, [fullFaceDescription.descriptor]);
+                    })
+                ).then(res => res.filter(d => d !== null));
+
                 modelsLoaded = true;
-                statusText.textContent = 'Modellər hazır!';
+                statusText.textContent = 'Hazırdır!';
                 setTimeout(() => { if(!isAnalyzing) status.style.display = 'none'; }, 1000);
             } catch (err) {
-                console.error("Face-api Ümumi Xəta:", err);
-                statusText.textContent = 'Xəta! Modellər tapılmadı. Konsola (F12) baxın.';
+                console.error("Face-api Xətası:", err);
+                statusText.textContent = 'Xəta! Konsola (F12) baxın.';
             }
         }
 
@@ -3032,11 +3065,10 @@ async function openActorDetails(id) {
             const resultDiv = document.getElementById('match-result');
             
             status.style.display = 'block';
-            statusText.textContent = 'Üz analiz edilir...';
+            statusText.textContent = 'Sizin üzünüz analiz edilir...';
             resultDiv.style.display = 'none';
 
             try {
-                // Detect all faces and pick the largest one
                 const detections = await faceapi.detectAllFaces(userImgElement).withFaceLandmarks().withFaceDescriptors();
                 
                 if (detections.length === 0) {
@@ -3045,56 +3077,38 @@ async function openActorDetails(id) {
                     return;
                 }
 
-                // Ən böyük üzü tapmaq
-                let detection = detections[0];
+                // Find the largest face
+                let bestDetection = detections[0];
                 if (detections.length > 1) {
-                    detection = detections.reduce((prev, curr) => 
+                    bestDetection = detections.reduce((prev, curr) => 
                         (prev.detection.box.width * prev.detection.box.height > curr.detection.box.width * curr.detection.box.height) ? prev : curr
                     );
                 }
 
-                statusText.textContent = 'Məşhurlarla müqayisə edilir...';
+                const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+                const bestMatch = faceMatcher.findBestMatch(bestDetection.descriptor);
                 
-                const actors = [
-                    { name: "Brad Pitt", img: "/actors/brad_pitt.jpg" },
-                    { name: "Angelina Jolie", img: "/actors/angelina_jolie.jpg" },
-                    { name: "Leonardo DiCaprio", img: "/actors/leonardo_dicaprio.jpg" },
-                    { name: "Scarlett Johansson", img: "/actors/scarlett_johansson.jpg" },
-                    { name: "Tom Cruise", img: "/actors/tom_cruise.jpg" },
-                    { name: "Robert Downey Jr.", img: "/actors/rdj.jpg" }
-                ];
-
-                let bestMatch = { distance: 1, actor: null };
-
-                for (const actor of actors) {
-                    try {
-                        const actorImg = await faceapi.fetchImage(actor.img);
-                        const actorDetection = await faceapi.detectSingleFace(actorImg).withFaceLandmarks().withFaceDescriptor();
-                        
-                        if (actorDetection) {
-                            const distance = faceapi.euclideanDistance(detection.descriptor, actorDetection.descriptor);
-                            if (distance < bestMatch.distance) {
-                                bestMatch = { distance, actor };
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`Aktyor ${actor.name} yüklənmədi:`, e);
-                    }
-                }
-
-                if (bestMatch.actor) {
+                if (bestMatch.label !== 'unknown') {
                     const similarity = Math.round((1 - bestMatch.distance) * 100);
-                    const finalSimilarity = similarity < 0 ? 0 : (similarity > 99 ? 99 : similarity);
+                    const actorName = bestMatch.label;
+                    
+                    // Map name back to image
+                    const actorMap = {
+                        "Al Pacino": "/actors/al-pacino-1672819009.jpg",
+                        "Brad Pitt": "/actors/brad-pitt-1533565798.jpg",
+                        "Leonardo DiCaprio": "/actors/leonardo-dicaprio-1659693613.jpg",
+                        "Will Smith": "/actors/smith (1).jpg"
+                    };
 
                     document.getElementById('res-user-img').src = userImgElement.src;
-                    document.getElementById('res-actor-img').src = bestMatch.actor.img;
-                    document.getElementById('res-actor-name').textContent = bestMatch.actor.name;
-                    document.getElementById('res-percentage').textContent = finalSimilarity + "%";
+                    document.getElementById('res-actor-img').src = actorMap[actorName];
+                    document.getElementById('res-actor-name').textContent = actorName;
+                    document.getElementById('res-percentage').textContent = similarity + "%";
                     
                     status.style.display = 'none';
                     resultDiv.style.display = 'block';
                 } else {
-                    statusText.textContent = 'Müqayisə üçün aktyor tapılmadı.';
+                    statusText.textContent = 'Heç bir aktyora bənzədilmədi.';
                 }
 
             } catch (err) {
