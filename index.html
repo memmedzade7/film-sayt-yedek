@@ -2972,7 +2972,8 @@ async function openActorDetails(id) {
         // Face Match Logic
         let modelsLoaded = false;
         let labeledFaceDescriptors = [];
-        const basePath = window.location.pathname.includes('film-sayt-yedek') ? '/film-sayt-yedek' : '';
+        const modelPath = window.location.hostname.includes('github.io') ? '/film-sayt-yedek/models' : '/models';
+        const actorPath = window.location.hostname.includes('github.io') ? '/film-sayt-yedek/actors' : '/actors';
 
         async function loadFaceModels() {
             if (modelsLoaded) return;
@@ -2983,12 +2984,11 @@ async function openActorDetails(id) {
             
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
-                const MODEL_URL = basePath + '/models';
                 await Promise.all([
-                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
+                    faceapi.nets.ssdMobilenetv1.loadFromUri(modelPath),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(modelPath),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(modelPath),
+                    faceapi.nets.tinyFaceDetector.loadFromUri(modelPath)
                 ]);
                 
                 console.log('Modellər public qovluğundan uğurla yükləndi');
@@ -2996,10 +2996,10 @@ async function openActorDetails(id) {
                 
                 // Pre-load actor descriptors
                 const actors = [
-                    { name: "Al Pacino", img: basePath + "/actors/al-pacino.jpg" },
-                    { name: "Brad Pitt", img: basePath + "/actors/brad-pitt.jpg" },
-                    { name: "Leonardo DiCaprio", img: basePath + "/actors/leonardo-dicaprio.jpg" },
-                    { name: "Will Smith", img: basePath + "/actors/will-smith.jpg" }
+                    { name: "Al Pacino", img: actorPath + "/al-pacino.jpg" },
+                    { name: "Brad Pitt", img: actorPath + "/brad-pitt.jpg" },
+                    { name: "Leonardo DiCaprio", img: actorPath + "/leonardo-dicaprio.jpg" },
+                    { name: "Will Smith", img: actorPath + "/will-smith.jpg" }
                 ];
 
                 labeledFaceDescriptors = await Promise.all(
@@ -3116,10 +3116,10 @@ async function openActorDetails(id) {
                         
                         // Map name back to image
                         const actorMap = {
-                            "Al Pacino": basePath + "/actors/al-pacino.jpg",
-                            "Brad Pitt": basePath + "/actors/brad-pitt.jpg",
-                            "Leonardo DiCaprio": basePath + "/actors/leonardo-dicaprio.jpg",
-                            "Will Smith": basePath + "/actors/will-smith.jpg"
+                            "Al Pacino": actorPath + "/al-pacino.jpg",
+                            "Brad Pitt": actorPath + "/brad-pitt.jpg",
+                            "Leonardo DiCaprio": actorPath + "/leonardo-dicaprio.jpg",
+                            "Will Smith": actorPath + "/will-smith.jpg"
                         };
 
                         document.getElementById('res-user-img').src = userImgElement.src;
