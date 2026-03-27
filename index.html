@@ -80,12 +80,13 @@
             letter-spacing: 1px;
             filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5));
             animation: pulse 2s infinite;
+            border: 1px solid rgba(188, 19, 254, 0.3);
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.8)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); }
+            0% { filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); border-color: rgba(188, 19, 254, 0.3); }
+            50% { filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.8)); border-color: rgba(0, 243, 255, 0.6); }
+            100% { filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); border-color: rgba(188, 19, 254, 0.3); }
         }
 
         .face-match-modal {
@@ -152,6 +153,11 @@
             text-align: center;
             margin-top: 30px;
             animation: fadeIn 0.5s ease;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+            border-radius: 25px;
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         @keyframes fadeIn {
@@ -278,8 +284,9 @@
 
         .nav-menu {
             display: flex;
-            gap: 15px;
+            gap: 25px;
             margin-left: 30px;
+            align-items: center;
         }
         .nav-link {
             color: var(--text-muted);
@@ -289,6 +296,10 @@
             transition: 0.3s;
             padding: 8px 15px;
             border-radius: 8px;
+            display: flex;
+            align-items: center;
+            height: 36px;
+            box-sizing: border-box;
         }
         .nav-link:hover, .nav-link.active {
             color: white;
@@ -1394,14 +1405,11 @@
     <main id="main"></main>
     <div id="loader" class="loader">Yüklənir...</div>
 
-    <footer class="footer-minimal">
-        <div style="margin-bottom: 5px;">
-            <span>RM Film © 2026</span>
-            <span onclick="openTelifModal()" style="font-size: 0.6rem; opacity: 0.5; text-decoration: underline;">Təlif Hüquqları</span>
+    <footer class="footer-minimal" style="background: #000; padding: 15px; border-top: 1px solid #111; margin-top: 50px;">
+        <div style="color: #4b5563; font-size: 0.65rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <span>© 2026 RM Film. Bütün hüquqlar qorunur.</span>
+            <button onclick="openTelifModal()" style="background: rgba(255,255,255,0.1); border: none; color: #4b5563; width: 18px; height: 18px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-style: italic; font-weight: bold; font-size: 0.6rem;">i</button>
         </div>
-        <p style="font-size: 0.5rem; opacity: 0.3; max-width: 600px; margin: 0 auto; line-height: 1.2;">
-            RM Film veb-saytı internetdə mövcud olan film və seriallar haqqında məlumat toplamaq və kənar mənbələrdən gələn video keçidləri təqdim etmək məqsədi daşıyır.
-        </p>
     </footer>
 
     <!-- Üz Analizi (Kinoəkizim) Modalı -->
@@ -2937,9 +2945,12 @@ async function openActorDetails(id) {
             status.style.display = 'block';
             statusText.textContent = 'Modellər yüklənir...';
             
+            console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
-                // User said 6 files in models folder. Usually it means these:
-                const MODEL_URL = '/models';
+                // Modellərin ünvanı - istifadəçinin yaratdığı /models qovluğu
+                const MODEL_URL = './models';
+                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${MODEL_URL}`);
+                
                 await Promise.all([
                     faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
@@ -2948,12 +2959,14 @@ async function openActorDetails(id) {
                     faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
                     faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
                 ]);
+                
                 modelsLoaded = true;
+                console.log("Face-api: Bütün modellər UĞURLA yükləndi!");
                 statusText.textContent = 'Modellər hazır!';
                 setTimeout(() => { if(!isAnalyzing) status.style.display = 'none'; }, 1000);
             } catch (err) {
-                console.error("Modellər yüklənmədi:", err);
-                statusText.textContent = 'Xəta! Modellər tapılmadı.';
+                console.error("Face-api: Modellər yüklənmədi! Səbəb:", err);
+                statusText.textContent = 'Xəta! Modellər tapılmadı. Konsola (F12) baxın.';
             }
         }
 
@@ -3004,20 +3017,24 @@ async function openActorDetails(id) {
             resultDiv.style.display = 'none';
 
             try {
-                const detection = await faceapi.detectSingleFace(userImgElement).withFaceLandmarks().withFaceDescriptor();
+                // Detect all faces and pick the largest one
+                const detections = await faceapi.detectAllFaces(userImgElement).withFaceLandmarks().withFaceDescriptors();
                 
-                if (!detection) {
+                if (detections.length === 0) {
                     statusText.textContent = 'Üz tapılmadı! Başqa şəkil yoxlayın.';
                     isAnalyzing = false;
                     return;
                 }
 
+                // Ən böyük üzü tapmaq
+                let detection = detections[0];
+                if (detections.length > 1) {
+                    detection = detections.reduce((prev, curr) => 
+                        (prev.detection.box.width * prev.detection.box.height > curr.detection.box.width * curr.detection.box.height) ? prev : curr
+                    );
+                }
+
                 statusText.textContent = 'Məşhurlarla müqayisə edilir...';
-                
-                // Compare with actors from /actors folder
-                // Since we don't have a list of actors, we assume a predefined list or we fetch from the folder
-                // For this implementation, we will look for images in /actors/ list
-                // Since I can't see the folder, I'll provide a generic logic that the user can expand
                 
                 const actors = [
                     { name: "Brad Pitt", img: "/actors/brad_pitt.jpg" },
