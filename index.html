@@ -112,6 +112,9 @@
             padding: 40px;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .face-match-container::before {
@@ -141,6 +144,8 @@
             transition: all 0.3s ease;
             margin: 20px 0;
             background: rgba(255, 255, 255, 0.02);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .face-upload-area:hover {
@@ -159,6 +164,8 @@
             border-radius: 25px;
             border: 1px solid rgba(0, 243, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @keyframes fadeIn {
@@ -1429,7 +1436,7 @@
                 <input type="file" id="face-input" hidden accept="image/*" onchange="handleFaceUpload(event)">
             </div>
 
-            <div id="analyzing-status" style="display: none; text-align: center; margin: 20px 0;">
+            <div id="analyzing-status" style="display: none; text-align: center; margin: 20px 0; width: 100%;">
                 <div class="loader" style="display: block; margin: 0 auto 10px;"></div>
                 <p id="status-text">Modellər yüklənir...</p>
             </div>
@@ -2949,8 +2956,8 @@ async function openActorDetails(id) {
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
                 // Modellərin ünvanı
-                const MODEL_URL = 'models';
-                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${window.location.origin}/${MODEL_URL}`);
+                const MODEL_URL = '/models';
+                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${window.location.origin}${MODEL_URL}`);
                 
                 // Hər bir modeli ayrıca yükləyib loglayırıq ki, xətanı tam görək
                 try {
@@ -2967,7 +2974,7 @@ async function openActorDetails(id) {
                     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
                     console.log('tinyFaceDetector yuklendi!');
                     
-                    console.log('Bütün modellər UĞURLA yuklendi!');
+                    console.log('Modellər public qovluğundan uğurla yükləndi');
                 } catch (e) {
                     console.error('Model yuklenmedi! Xəta:', e);
                     throw e;
