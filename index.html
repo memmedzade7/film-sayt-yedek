@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -493,51 +492,6 @@
             position: relative;
         }
         
-
-        
-        /* --- MOBIL OTAQ DÜZƏLİŞLƏRİ --- */
-        #orientation-alert-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-        }
-        #orientation-alert-overlay .rotate-icon {
-            font-size: 50px;
-            margin-bottom: 20px;
-            animation: rotate-anim 1.5s linear infinite;
-        }
-        @keyframes rotate-anim {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Yalnız mobil və portret rejimində overlay-i göstər */
-        @media (max-width: 800px) and (orientation: portrait) {
-            body.watch-party-active #orientation-alert-overlay {
-                display: flex;
-            }
-        }
-
-        /* Mobil landşaft rejimində zoom problemini həll et */
-        @media (max-height: 500px) and (orientation: landscape) {
-            body.watch-party-active .watch-party-layout {
-                transform: scale(0.85);
-                transform-origin: top left;
-                width: 117.6%; /* 100 / 0.85 */
-                height: 117.6%;
-            }
-        }
-
         .video-side {
             flex: 1 !important; 
             height: 100%;
@@ -1184,17 +1138,7 @@
     </style>
 </head>
 <body>
-<div id="orientation-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; color:white; text-align:center; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif;">
-    <img src="https://cdn-icons-png.flaticon.com/512/575/575454.png" width="80" style="margin-bottom:20px; filter:invert(1);">
-    <h2 style="font-size:20px; padding:0 20px;">Daha yaxşı təcrübə üçün zəhmət olmasa telefonu yan çevirin</h2>
-</div>
 
-<style>
-    /* Yalnız mobil və dik (portrait) vəziyyətdə göstər */
-    @media only screen and (max-width: 768px) and (orientation: portrait) {
-        #orientation-overlay { display: flex !important; }
-    }
-</style>
     <div id="bg-overlay"></div>
 
     <div id="dice-overlay">
@@ -1733,23 +1677,6 @@
         }
 
         function renderActiveParty(roomId) {
-            document.body.classList.add('watch-party-active');
-            
-            // Səhifə yeniləmə xəbərdarlığı
-            window.onbeforeunload = function() {
-                return "Otaqdan çıxmaq istədiyinizə əminsiniz? Bağlantı kəsiləcək";
-            };
-
-            if (!document.getElementById('orientation-alert-overlay')) {
-                const overlayHtml = `
-                <div id="orientation-alert-overlay">
-                    <div class="orientation-alert-content">
-                        <div class="rotate-icon">🔄</div>
-                        <p style="font-size: 1.2rem; padding: 0 20px;">Daha yaxşı təcrübə üçün<br>telefonu yan çevirin</p>
-                    </div>
-                </div>`;
-                document.body.insertAdjacentHTML('beforeend', overlayHtml);
-            }
             main.innerHTML = `
                 <div class="watch-party-layout">
                     <div class="video-side">
@@ -1759,12 +1686,13 @@
                                 <button class="player-btn" onclick="openPartyCatalog('movie')">🎬 Film</button>
                                 <button class="player-btn" onclick="openPartyCatalog('tv')">📺 Serial</button>
                                 <button class="player-btn" style="background:#fbbf24; color:#000;" onclick="syncTimeAction()">🕒 Zamanı Sinxron Et</button>
-                                <button class="player-btn" style="background:#ef4444; border:none;" onclick="closeRoom()">Bağla</button>
+                                <button class="player-btn" style="background:#ef4444; border:none;" onclick="location.reload()">Bağla</button>
                             </div>
                         </div>
                         <div style="display:flex; flex-direction:column; background:#0d1117; border-bottom:1px solid #30363d;">
                             <div style="display:flex; width:100%;">
                                 <input id="external-url-input" placeholder="Video linkini bura yapışdırın (YouTube, zipfilmizle, MP4)..." style="flex:1; background:transparent; border:none; color:#fff; padding:12px 20px; outline:none; font-size:0.85rem;">
+                                <button class="player-btn" style="margin:5px; background:#3b82f6; color:#fff; padding:8px 15px;" onclick="googleSearchHelper()">🔍 Tap</button>
                                 <button class="player-btn" style="margin:5px; background:var(--party-color); color:#000; font-weight:bold; padding:8px 20px;" onclick="startExternalLink()">🚀 Başlat</button>
                             </div>
                             <div style="padding: 5px 20px; background: #0d1117; color: #8b949e; font-size: 0.75rem; border-top: 1px solid #30363d;">
@@ -1805,11 +1733,6 @@
             `;
             document.getElementById('chat-input').addEventListener('keypress', e => { if(e.key === 'Enter') sendChatMessage(); });
             document.getElementById('external-url-input').addEventListener('keypress', e => { if(e.key === 'Enter') startExternalLink(); });
-        }
-
-        function closeRoom() {
-            window.onbeforeunload = null;
-            location.reload();
         }
 
         // Sinxron hərəkət funksiyası
@@ -2629,12 +2552,5 @@ async function openActorDetails(id) {
     </script>
 
  </div>
-    <script>
-    // Səhifəni yeniləyəndə və ya bağlayanda xəbərdarlıq
-    window.onbeforeunload = function() {
-        // Əgər otaq daxilindədirsə (bu dəyişəni öz koduna görə yoxla, yoxdursa birbaşa işləyəcək)
-        return "Otaqdan çıxmaq istədiyinizə əminsiniz? Bağlantı kəsiləcək.";
-    };
-</script>
  </body>
  </html>
