@@ -2995,25 +2995,32 @@ async function openActorDetails(id) {
                 
                 // Pre-load actor descriptors
                 const actors = [
-                    { name: "Al Pacino", img: "/actors/al-pacino-1672819009.jpg" },
-                    { name: "Brad Pitt", img: "/actors/brad-pitt-1533565798.jpg" },
-                    { name: "Leonardo DiCaprio", img: "/actors/leonardo-dicaprio-1659693613.jpg" },
-                    { name: "Will Smith", img: "/actors/smith (1).jpg" }
+                    { name: "Al Pacino", img: "/actors/al-pacino.jpg" },
+                    { name: "Brad Pitt", img: "/actors/brad-pitt.jpg" },
+                    { name: "Leonardo DiCaprio", img: "/actors/leonardo-dicaprio.jpg" },
+                    { name: "Will Smith", img: "/actors/will-smith.jpg" }
                 ];
 
                 labeledFaceDescriptors = await Promise.all(
                     actors.map(async actor => {
-                        const img = await faceapi.fetchImage(actor.img);
-                        const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
-                        if (!fullFaceDescription) {
-                            console.warn(`Üz tapılmadı: ${actor.name}`);
+                        try {
+                            const img = await faceapi.fetchImage(actor.img);
+                            const fullFaceDescription = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+                            if (!fullFaceDescription) {
+                                console.warn(`Üz tapılmadı: ${actor.name}`);
+                                return null;
+                            }
+                            console.log(`Descriptor yükləndi: ${actor.name}`);
+                            return new faceapi.LabeledFaceDescriptors(actor.name, [fullFaceDescription.descriptor]);
+                        } catch (e) {
+                            console.error(`Aktyor şəkli yüklənmədi: ${actor.name}`, e);
                             return null;
                         }
-                        return new faceapi.LabeledFaceDescriptors(actor.name, [fullFaceDescription.descriptor]);
                     })
                 ).then(res => res.filter(d => d !== null));
 
                 modelsLoaded = true;
+                console.log('Analizə hazıram!');
                 statusText.textContent = 'Hazırdır!';
                 setTimeout(() => { if(!isAnalyzing) status.style.display = 'none'; }, 1000);
             } catch (err) {
@@ -3036,6 +3043,8 @@ async function openActorDetails(id) {
             document.getElementById('user-preview').style.display = 'none';
             document.getElementById('match-result').style.display = 'none';
             document.getElementById('analyzing-status').style.display = 'none';
+            // Canvas təmizləmə
+            document.querySelectorAll('canvas').forEach(canvas => canvas.remove());
         }
 
         let isAnalyzing = false;
@@ -3059,6 +3068,9 @@ async function openActorDetails(id) {
         async function analyzeFace(userImgElement) {
             if (!modelsLoaded) await loadFaceModels();
             
+            // Köhnə canvasları təmizləyirik
+            document.querySelectorAll('canvas').forEach(canvas => canvas.remove());
+
             isAnalyzing = true;
             const status = document.getElementById('analyzing-status');
             const statusText = document.getElementById('status-text');
@@ -3069,46 +3081,56 @@ async function openActorDetails(id) {
             resultDiv.style.display = 'none';
 
             try {
-                const detections = await faceapi.detectAllFaces(userImgElement).withFaceLandmarks().withFaceDescriptors();
+                // Async/await istifadə edərək analiz edirik
+                const detections = await faceapi.detectAllFaces(userImgElement, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
                 
                 if (detections.length === 0) {
-                    statusText.textContent = 'Üz tapılmadı! Başqa şəkil yoxlayın.';
-                    isAnalyzing = false;
-                    return;
-                }
-
-                // Find the largest face
-                let bestDetection = detections[0];
-                if (detections.length > 1) {
-                    bestDetection = detections.reduce((prev, curr) => 
-                        (prev.detection.box.width * prev.detection.box.height > curr.detection.box.width * curr.detection.box.height) ? prev : curr
-                    );
-                }
-
-                const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
-                const bestMatch = faceMatcher.findBestMatch(bestDetection.descriptor);
-                
-                if (bestMatch.label !== 'unknown') {
-                    const similarity = Math.round((1 - bestMatch.distance) * 100);
-                    const actorName = bestMatch.label;
-                    
-                    // Map name back to image
-                    const actorMap = {
-                        "Al Pacino": "/actors/al-pacino-1672819009.jpg",
-                        "Brad Pitt": "/actors/brad-pitt-1533565798.jpg",
-                        "Leonardo DiCaprio": "/actors/leonardo-dicaprio-1659693613.jpg",
-                        "Will Smith": "/actors/smith (1).jpg"
-                    };
-
-                    document.getElementById('res-user-img').src = userImgElement.src;
-                    document.getElementById('res-actor-img').src = actorMap[actorName];
-                    document.getElementById('res-actor-name').textContent = actorName;
-                    document.getElementById('res-percentage').textContent = similarity + "%";
-                    
-                    status.style.display = 'none';
-                    resultDiv.style.display = 'block';
+                    // Əgər TinyFaceDetector tapmasa, standart detector ilə yoxlayaq
+                    const fullDetections = await faceapi.detectAllFaces(userImgElement).withFaceLandmarks().withFaceDescriptors();
+                    if (fullDetections.length === 0) {
+                        statusText.textContent = 'Üz tapılmadı! Başqa şəkil yoxlayın.';
+                        isAnalyzing = false;
+                        return;
+                    }
+                    processMatch(fullDetections);
                 } else {
-                    statusText.textContent = 'Heç bir aktyora bənzədilmədi.';
+                    processMatch(detections);
+                }
+
+                function processMatch(allDetections) {
+                    // Find the largest face
+                    let bestDetection = allDetections[0];
+                    if (allDetections.length > 1) {
+                        bestDetection = allDetections.reduce((prev, curr) => 
+                            (prev.detection.box.width * prev.detection.box.height > curr.detection.box.width * curr.detection.box.height) ? prev : curr
+                        );
+                    }
+
+                    const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
+                    const bestMatch = faceMatcher.findBestMatch(bestDetection.descriptor);
+                    
+                    if (bestMatch.label !== 'unknown') {
+                        const similarity = Math.round((1 - bestMatch.distance) * 100);
+                        const actorName = bestMatch.label;
+                        
+                        // Map name back to image
+                        const actorMap = {
+                            "Al Pacino": "/actors/al-pacino.jpg",
+                            "Brad Pitt": "/actors/brad-pitt.jpg",
+                            "Leonardo DiCaprio": "/actors/leonardo-dicaprio.jpg",
+                            "Will Smith": "/actors/will-smith.jpg"
+                        };
+
+                        document.getElementById('res-user-img').src = userImgElement.src;
+                        document.getElementById('res-actor-img').src = actorMap[actorName];
+                        document.getElementById('res-actor-name').textContent = actorName;
+                        document.getElementById('res-percentage').textContent = similarity + "%";
+                        
+                        status.style.display = 'none';
+                        resultDiv.style.display = 'block';
+                    } else {
+                        statusText.textContent = 'Heç bir aktyora bənzədilmədi.';
+                    }
                 }
 
             } catch (err) {
