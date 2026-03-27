@@ -495,6 +495,49 @@
         
 
         
+        /* --- MOBIL OTAQ DÜZƏLİŞLƏRİ --- */
+        #orientation-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        #orientation-alert-overlay .rotate-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            animation: rotate-anim 1.5s linear infinite;
+        }
+        @keyframes rotate-anim {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Yalnız mobil və portret rejimində overlay-i göstər */
+        @media (max-width: 800px) and (orientation: portrait) {
+            body.watch-party-active #orientation-alert-overlay {
+                display: flex;
+            }
+        }
+
+        /* Mobil landşaft rejimində zoom problemini həll et */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body.watch-party-active .watch-party-layout {
+                transform: scale(0.85);
+                transform-origin: top left;
+                width: 117.6%; /* 100 / 0.85 */
+                height: 117.6%;
+            }
+        }
+
         .video-side {
             flex: 1 !important; 
             height: 100%;
@@ -1681,22 +1724,23 @@
 
         function renderActiveParty(roomId) {
             document.body.classList.add('watch-party-active');
+            
+            // Səhifə yeniləmə xəbərdarlığı
+            window.onbeforeunload = function() {
+                return "Otaqdan çıxmaq istədiyinizə əminsiniz? Bağlantı kəsiləcək";
+            };
 
             if (!document.getElementById('orientation-alert-overlay')) {
                 const overlayHtml = `
                 <div id="orientation-alert-overlay">
                     <div class="orientation-alert-content">
                         <div class="rotate-icon">🔄</div>
-                        <p style="font-size: 1.2rem; padding: 0 20px;">Daha yaxşı izləmə təcrübəsi üçün<br>telefonu yan çevirin</p>
+                        <p style="font-size: 1.2rem; padding: 0 20px;">Daha yaxşı təcrübə üçün<br>telefonu yan çevirin</p>
                     </div>
                 </div>`;
                 document.body.insertAdjacentHTML('beforeend', overlayHtml);
             }
             main.innerHTML = `
-                <div id="orientation-overlay">
-                    <div class="rotate-icon">🔄</div>
-                    <h2 style="font-size: 1.5rem; font-weight: bold;">Xahiş olunur telefonu yan çevirin</h2>
-                </div>
                 <div class="watch-party-layout">
                     <div class="video-side">
                         <div style="padding:10px 20px; background:#111; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -1705,13 +1749,12 @@
                                 <button class="player-btn" onclick="openPartyCatalog('movie')">🎬 Film</button>
                                 <button class="player-btn" onclick="openPartyCatalog('tv')">📺 Serial</button>
                                 <button class="player-btn" style="background:#fbbf24; color:#000;" onclick="syncTimeAction()">🕒 Zamanı Sinxron Et</button>
-                                <button class="player-btn" style="background:#ef4444; border:none;" onclick="location.reload()">Bağla</button>
+                                <button class="player-btn" style="background:#ef4444; border:none;" onclick="closeRoom()">Bağla</button>
                             </div>
                         </div>
                         <div style="display:flex; flex-direction:column; background:#0d1117; border-bottom:1px solid #30363d;">
                             <div style="display:flex; width:100%;">
                                 <input id="external-url-input" placeholder="Video linkini bura yapışdırın (YouTube, zipfilmizle, MP4)..." style="flex:1; background:transparent; border:none; color:#fff; padding:12px 20px; outline:none; font-size:0.85rem;">
-                                <button class="player-btn" style="margin:5px; background:#3b82f6; color:#fff; padding:8px 15px;" onclick="googleSearchHelper()">🔍 Tap</button>
                                 <button class="player-btn" style="margin:5px; background:var(--party-color); color:#000; font-weight:bold; padding:8px 20px;" onclick="startExternalLink()">🚀 Başlat</button>
                             </div>
                             <div style="padding: 5px 20px; background: #0d1117; color: #8b949e; font-size: 0.75rem; border-top: 1px solid #30363d;">
@@ -1752,37 +1795,12 @@
             `;
             document.getElementById('chat-input').addEventListener('keypress', e => { if(e.key === 'Enter') sendChatMessage(); });
             document.getElementById('external-url-input').addEventListener('keypress', e => { if(e.key === 'Enter') startExternalLink(); });
-            
-
         }
 
-        function checkOrientation() {
-            const isOtaq = document.querySelector('.watch-party-layout');
-            if(!isOtaq) return;
-
-            const isPortrait = window.innerHeight > window.innerWidth;
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            const overlay = document.getElementById('orientation-overlay');
-
-            if (isMobile && isPortrait) {
-                if(overlay) overlay.style.display = 'flex';
-            } else {
-                if(overlay) {
-                    overlay.style.display = 'none';
-                    // Reset zoom to 1.0
-                    const viewport = document.querySelector('meta[name="viewport"]');
-                    if (viewport) {
-                        viewport.setAttribute('content', 'width=1200, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
-                        setTimeout(() => {
-                            viewport.setAttribute('content', 'width=1200');
-                        }, 300);
-                    }
-                }
-            }
+        function closeRoom() {
+            window.onbeforeunload = null;
+            location.reload();
         }
-
-        window.addEventListener('resize', checkOrientation);
-        window.addEventListener('orientationchange', checkOrientation);
 
         // Sinxron hərəkət funksiyası
         function controlAction(action, time = null) {
