@@ -72,21 +72,22 @@
         }
 
         .kino-ekiz-btn {
-            background: linear-gradient(45deg, #bc13fe, #00f3ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: linear-gradient(135deg, #bc13fe, #00f3ff) !important;
+            color: white !important;
             font-weight: 800 !important;
             text-transform: uppercase;
             letter-spacing: 1px;
-            filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5));
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             animation: pulse 2s infinite;
-            border: 1px solid rgba(188, 19, 254, 0.3);
+            -webkit-background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
         }
 
         @keyframes pulse {
-            0% { filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); border-color: rgba(188, 19, 254, 0.3); }
-            50% { filter: drop-shadow(0 0 15px rgba(0, 243, 255, 0.8)); border-color: rgba(0, 243, 255, 0.6); }
-            100% { filter: drop-shadow(0 0 5px rgba(188, 19, 254, 0.5)); border-color: rgba(188, 19, 254, 0.3); }
+            0% { box-shadow: 0 0 5px rgba(188, 19, 254, 0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.8); transform: scale(1.02); }
+            100% { box-shadow: 0 0 5px rgba(188, 19, 254, 0.5); transform: scale(1); }
         }
 
         .face-match-modal {
@@ -2947,25 +2948,36 @@ async function openActorDetails(id) {
             
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
-                // Modellərin ünvanı - istifadəçinin yaratdığı /models qovluğu
-                const MODEL_URL = './models';
-                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${MODEL_URL}`);
+                // Modellərin ünvanı
+                const MODEL_URL = 'models';
+                console.log(`Face-api: Modellər bu ünvandan yüklənir: ${window.location.origin}/${MODEL_URL}`);
                 
-                await Promise.all([
-                    faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL)
-                ]);
+                // Hər bir modeli ayrıca yükləyib loglayırıq ki, xətanı tam görək
+                try {
+                    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+                    console.log('ssdMobilenetv1 yuklendi!');
+                    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                    console.log('faceLandmark68Net yuklendi!');
+                    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+                    console.log('faceRecognitionNet yuklendi!');
+                    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+                    console.log('faceExpressionNet yuklendi!');
+                    await faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL);
+                    console.log('ageGenderNet yuklendi!');
+                    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+                    console.log('tinyFaceDetector yuklendi!');
+                    
+                    console.log('Bütün modellər UĞURLA yuklendi!');
+                } catch (e) {
+                    console.error('Model yuklenmedi! Xəta:', e);
+                    throw e;
+                }
                 
                 modelsLoaded = true;
-                console.log("Face-api: Bütün modellər UĞURLA yükləndi!");
                 statusText.textContent = 'Modellər hazır!';
                 setTimeout(() => { if(!isAnalyzing) status.style.display = 'none'; }, 1000);
             } catch (err) {
-                console.error("Face-api: Modellər yüklənmədi! Səbəb:", err);
+                console.error("Face-api Ümumi Xəta:", err);
                 statusText.textContent = 'Xəta! Modellər tapılmadı. Konsola (F12) baxın.';
             }
         }
