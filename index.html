@@ -1592,32 +1592,35 @@
             const savedUser = localStorage.getItem('watch-party-user');
             const savedIsHost = localStorage.getItem('watch-party-is-host') === 'true';
 
-            if (roomFromUrl) {
-                currentRoomId = roomFromUrl;
-                if (savedUser && roomFromUrl === savedRoom) {
-                    myUsername = savedUser;
-                    isHost = savedIsHost;
-                    switchTo('party');
-                    setTimeout(() => initPeer(isHost ? 'host' : 'join', roomFromUrl), 500);
-                } else {
-                    switchTo('party');
-                }
-                return;
-            }
+            const activeRoom = roomFromUrl || savedRoom;
 
-            if (savedRoom && savedUser) {
-                myUsername = savedUser;
-                isHost = savedIsHost;
-                currentRoomId = savedRoom;
-                
-                if (confirm(`${savedRoom} otağına yenidən qoşulmaq istəyirsiniz?`)) {
-                    switchTo('party');
-                    setTimeout(() => initPeer(isHost ? 'host' : 'join', savedRoom), 500);
+            if (activeRoom) {
+                if (confirm(`${activeRoom} otağına qoşulmaq istəyirsiniz?`)) {
+                    currentRoomId = activeRoom;
+                    if (savedUser) {
+                        myUsername = savedUser;
+                        isHost = (activeRoom === savedRoom) ? savedIsHost : false;
+                        switchTo('party');
+                        setTimeout(() => initPeer(isHost ? 'host' : 'join', activeRoom), 500);
+                    } else {
+                        switchTo('party');
+                    }
                 } else {
-                    localStorage.removeItem('watch-party-room');
-                    localStorage.removeItem('watch-party-user');
-                    localStorage.removeItem('watch-party-is-host');
+                    // İmtina edildikdə URL və localStorage-ı təmizləyirik
+                    clearPartyState();
                 }
+            }
+        }
+
+        function clearPartyState() {
+            localStorage.removeItem('watch-party-room');
+            localStorage.removeItem('watch-party-user');
+            localStorage.removeItem('watch-party-is-host');
+            
+            const url = new URL(window.location);
+            if (url.searchParams.has('room')) {
+                url.searchParams.delete('room');
+                window.history.replaceState({}, '', url);
             }
         }
 
