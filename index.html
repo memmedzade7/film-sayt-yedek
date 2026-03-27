@@ -2972,6 +2972,7 @@ async function openActorDetails(id) {
         // Face Match Logic
         let modelsLoaded = false;
         let labeledFaceDescriptors = [];
+        const basePath = window.location.pathname.includes('film-sayt-yedek') ? '/film-sayt-yedek' : '';
 
         async function loadFaceModels() {
             if (modelsLoaded) return;
@@ -2982,7 +2983,7 @@ async function openActorDetails(id) {
             
             console.log("Face-api: Modellər yüklənməyə başlayır...");
             try {
-                const MODEL_URL = '/models';
+                const MODEL_URL = basePath + '/models';
                 await Promise.all([
                     faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
@@ -2995,10 +2996,10 @@ async function openActorDetails(id) {
                 
                 // Pre-load actor descriptors
                 const actors = [
-                    { name: "Al Pacino", img: "/actors/al-pacino.jpg" },
-                    { name: "Brad Pitt", img: "/actors/brad-pitt.jpg" },
-                    { name: "Leonardo DiCaprio", img: "/actors/leonardo-dicaprio.jpg" },
-                    { name: "Will Smith", img: "/actors/will-smith.jpg" }
+                    { name: "Al Pacino", img: basePath + "/actors/al-pacino.jpg" },
+                    { name: "Brad Pitt", img: basePath + "/actors/brad-pitt.jpg" },
+                    { name: "Leonardo DiCaprio", img: basePath + "/actors/leonardo-dicaprio.jpg" },
+                    { name: "Will Smith", img: basePath + "/actors/will-smith.jpg" }
                 ];
 
                 labeledFaceDescriptors = await Promise.all(
@@ -3115,10 +3116,10 @@ async function openActorDetails(id) {
                         
                         // Map name back to image
                         const actorMap = {
-                            "Al Pacino": "/actors/al-pacino.jpg",
-                            "Brad Pitt": "/actors/brad-pitt.jpg",
-                            "Leonardo DiCaprio": "/actors/leonardo-dicaprio.jpg",
-                            "Will Smith": "/actors/will-smith.jpg"
+                            "Al Pacino": basePath + "/actors/al-pacino.jpg",
+                            "Brad Pitt": basePath + "/actors/brad-pitt.jpg",
+                            "Leonardo DiCaprio": basePath + "/actors/leonardo-dicaprio.jpg",
+                            "Will Smith": basePath + "/actors/will-smith.jpg"
                         };
 
                         document.getElementById('res-user-img').src = userImgElement.src;
