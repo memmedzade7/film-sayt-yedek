@@ -1785,7 +1785,7 @@
             } else if(mode === 'top250') {
                 document.getElementById('nav-top250').classList.add('active');
                 movieContent.style.display = 'none';
-                currentApiUrl = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=${LANG}`;
+                currentApiUrl = `${BASE_URL}/list/1309?api_key=${API_KEY}&language=${LANG}`;
                 getMovies(currentApiUrl);
             } else if(mode === 'party') {
                 document.getElementById('nav-party').classList.add('active');
@@ -2373,7 +2373,8 @@ async function loadPartyCatalog(isNew = true) {
             try {
                 const res = await fetch(`${url}&page=${currentPage}`);
                 const data = await res.json();
-                if (data.results) showMovies(data.results);
+                const movies = data.results || data.items;
+                if (movies) showMovies(movies);
             } catch (error) { console.error("Xəta:", error); }
             isLoading = false;
             loader.style.display = 'none';
@@ -2397,13 +2398,14 @@ async function loadPartyCatalog(isNew = true) {
                 const isFav = favorites.some(f => f.id === item.id);
                 const title = item.title || item.name;
                 const el = document.createElement('div');
+                const ratingElId = `rating-${item.id}-${Math.floor(Math.random() * 1000)}`;
                 el.className = 'movie';
                 el.innerHTML = `
                     <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">❤</button>
                     <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/300x450'}" alt="${title}">
                     <div class="movie-info">
                         <h3>${title}</h3>
-                        <div class="rating">${item.vote_average.toFixed(1)}</div>
+                        <div class="rating" id="${ratingElId}">${item.vote_average.toFixed(1)}</div>
                         <div class="quick-view-data">
                             <span>📅 ${ (item.release_date || item.first_air_date || '').split('-')[0] }</span>
                             <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' trailer')}" target="_blank" rel="noopener" style="color:#ff0000; font-size: 0.85rem; text-decoration:none;">📺 Treyler</a>
@@ -2415,7 +2417,32 @@ async function loadPartyCatalog(isNew = true) {
                 `;
                 el.onclick = () => isTV ? openTVDetails(item.id) : openDetails(item.id);
                 main.appendChild(el);
+
+                if (currentMode === 'top250' && !isTV) {
+                    updateWithIMDbRating(item.id, ratingElId);
+                }
             });
+        }
+
+        async function updateWithIMDbRating(tmdbId, elId) {
+            try {
+                const extRes = await fetch(`${BASE_URL}/movie/${tmdbId}/external_ids?api_key=${API_KEY}`);
+                const extData = await extRes.json();
+                if (extData.imdb_id) {
+                    const omdbRes = await fetch(`https://www.omdbapi.com/?i=${extData.imdb_id}&apikey=dfb1011f`);
+                    const omdbData = await omdbRes.json();
+                    if (omdbData.imdbRating && omdbData.imdbRating !== 'N/A') {
+                        const el = document.getElementById(elId);
+                        if (el) {
+                            el.innerText = omdbData.imdbRating;
+                            el.style.color = '#f5c518'; // IMDb Gold
+                            el.title = 'IMDb Rating';
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("IMDb xalı yüklənərkən xəta:", e);
+            }
         }
 
         let currentMovieForTicket = null;
@@ -2491,6 +2518,19 @@ async function loadPartyCatalog(isNew = true) {
                 movie = await mRes.json();
             }
 
+            let imdbRatingHTML = '';
+            try {
+                const extRes = await fetch(`${BASE_URL}/movie/${id}/external_ids?api_key=${API_KEY}`);
+                const extData = await extRes.json();
+                if (extData.imdb_id) {
+                    const omdbRes = await fetch(`https://www.omdbapi.com/?i=${extData.imdb_id}&apikey=dfb1011f`);
+                    const omdbData = await omdbRes.json();
+                    if (omdbData.imdbRating && omdbData.imdbRating !== 'N/A') {
+                        imdbRatingHTML = `<span style="color: #f5c518; font-weight: bold; margin-left: 10px;">⭐ IMDb: ${omdbData.imdbRating}</span>`;
+                    }
+                }
+            } catch(e) {}
+
             const [vRes, cRes] = await Promise.all([
                 fetch(`${BASE_URL}/movie/${id}/videos?api_key=${API_KEY}`),
                 fetch(`${BASE_URL}/movie/${id}/credits?api_key=${API_KEY}&language=${LANG}`)
@@ -2528,6 +2568,10 @@ async function loadPartyCatalog(isNew = true) {
                     <img src="${IMG_PATH + movie.poster_path}">
                     <div>
                         <h2>${movie.title}</h2>
+                        <div style="margin-bottom: 15px;">
+                            <span style="color: #4ade80; font-weight: bold;">⭐ TMDB: ${movie.vote_average.toFixed(1)}</span>
+                            ${imdbRatingHTML}
+                        </div>
                         <p>${movie.overview}</p>
                         <div class="cast-container">
                             ${credits.cast.slice(0, 8).map(c => `
@@ -2548,12 +2592,25 @@ async function loadPartyCatalog(isNew = true) {
         async function openTVDetails(id) {
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            const [tvRes, cRes] = await Promise.all([
+            const [tvRes, cRes, extRes] = await Promise.all([
                 fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=${LANG}`),
-                fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}&language=${LANG}`)
+                fetch(`${BASE_URL}/tv/${id}/credits?api_key=${API_KEY}&language=${LANG}`),
+                fetch(`${BASE_URL}/tv/${id}/external_ids?api_key=${API_KEY}`)
             ]);
             const tv = await tvRes.json();
             const credits = await cRes.json();
+            const extData = await extRes.json();
+
+            let imdbRatingHTML = '';
+            if (extData.imdb_id) {
+                try {
+                    const omdbRes = await fetch(`https://www.omdbapi.com/?i=${extData.imdb_id}&apikey=dfb1011f`);
+                    const omdbData = await omdbRes.json();
+                    if (omdbData.imdbRating && omdbData.imdbRating !== 'N/A') {
+                        imdbRatingHTML = `<span style="color: #f5c518; font-weight: bold; margin-left: 10px;">⭐ IMDb: ${omdbData.imdbRating}</span>`;
+                    }
+                } catch(e) {}
+            }
 
             const seasons = tv.seasons.filter(s => s.season_number > 0);
             
@@ -2600,6 +2657,10 @@ async function loadPartyCatalog(isNew = true) {
                     <img src="${IMG_PATH + tv.poster_path}">
                     <div>
                         <h2>${tv.name}</h2>
+                        <div style="margin-bottom: 15px;">
+                            <span style="color: #4ade80; font-weight: bold;">⭐ TMDB: ${tv.vote_average.toFixed(1)}</span>
+                            ${imdbRatingHTML}
+                        </div>
                         <p>${tv.overview}</p>
                         <div class="cast-container">
                             ${credits.cast.slice(0, 8).map(c => `
