@@ -1,8 +1,4 @@
 
-
-
-
-
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -154,6 +150,17 @@
             background: rgba(129, 140, 248, 0.15);
             box-shadow: 0 0 15px rgba(129, 140, 248, 0.3);
             border-color: var(--party-color);
+        }
+
+        .nav-link.top250-nav {
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            box-shadow: inset 0 0 10px rgba(251, 191, 36, 0.1);
+        }
+        .nav-link.top250-nav:hover {
+            background: rgba(251, 191, 36, 0.15);
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+            border-color: #fbbf24;
         }
 
         .mood-section {
@@ -598,6 +605,7 @@
             word-wrap: break-word;
             line-height: 1.5;
             color: #c9d1d9;
+            align-self: flex-start;
             animation: msgFadeIn 0.3s ease;
         }
 
@@ -1205,7 +1213,7 @@
                 <div class="nav-link" id="nav-series" onclick="switchTo('series')">Seriallar</div>
                 <div class="nav-link" id="nav-actors" onclick="switchTo('actors')">Aktyorlar</div>
                 <div class="nav-link" id="nav-globe" onclick="switchTo('globe')">Qlobus</div>
-                <div class="nav-link" id="nav-telif" onclick="openTelifModal()">Telif</div>
+                <div class="nav-link top250-nav" id="nav-top250" onclick="switchTo('top250')">IMDB Top 250</div>
                 <div class="nav-link party-nav" id="nav-party" onclick="switchTo('party')">Otaq </div>
             </nav>
         </div>
@@ -1308,19 +1316,6 @@
 
     <div id="modal" class="modal">
         <div class="modal-content" id="modal-content"></div>
-    </div>
-
-    <!-- Telif Modalı -->
-    <div id="telif-modal" class="modal">
-        <div class="modal-content" style="max-width: 600px; padding: 40px; text-align: center;">
-            <span class="close-modal" onclick="closeTelifModal()">&times;</span>
-            <h2 style="color: white; margin-bottom: 25px; font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">Hüquqi Qeyd / Copyright</h2>
-            <div style="color: #d1d5db; line-height: 1.8; text-align: left; font-size: 0.95rem;">
-                <p style="margin-bottom: 20px;">RM Film  veb-saytı internetdə mövcud olan film və seriallar haqqında məlumat toplamaq və kənar mənbələrdən gələn video keçidləri təqdim etmək məqsədi daşıyır.</p>
-                <p style="border-top: 1px dashed rgba(255,255,255,0.1); pt-4; margin-top: 20px; padding-top: 20px;">RM Film does not host or upload any video files on its servers. All video content provided on this website is hosted on third-party websites and is available freely on the internet.</p>
-            </div>
-            <button class="room-btn-main" style="margin-top: 30px; max-width: 200px;" onclick="closeTelifModal()">Anladım</button>
-        </div>
     </div>
 
     <div id="party-catalog-overlay">
@@ -1769,6 +1764,11 @@
                 movieContent.style.display = 'none';
                 currentApiUrl = `${BASE_URL}/person/popular?api_key=${API_KEY}&language=${LANG}`;
                 getActors(currentApiUrl);
+            } else if(mode === 'top250') {
+                document.getElementById('nav-top250').classList.add('active');
+                movieContent.style.display = 'none';
+                currentApiUrl = `${BASE_URL}/movie/top_rated?api_key=${API_KEY}&language=${LANG}`;
+                getMovies(currentApiUrl);
             } else if(mode === 'party') {
                 document.getElementById('nav-party').classList.add('active');
                 movieContent.style.display = 'none';
@@ -1825,7 +1825,11 @@
         function finalizePartyUI(roomId) {
             const setup = document.getElementById('room-setup');
             if(setup) setup.remove();
-            renderActiveParty(roomId);
+            
+            // Əgər artıq otaq interfeysi qurulubsa, yenidən render etmə (videonu kəsməmək üçün)
+            if (!document.querySelector('.watch-party-layout')) {
+                renderActiveParty(roomId);
+            }
         }
 
         function renderActiveParty(roomId) {
@@ -1844,7 +1848,6 @@
                         <div style="display:flex; flex-direction:column; background:#0d1117; border-bottom:1px solid #30363d;">
                             <div style="display:flex; width:100%;">
                                 <input id="external-url-input" placeholder="Video linkini bura yapışdırın (YouTube, zipfilmizle, MP4)..." style="flex:1; background:transparent; border:none; color:#fff; padding:12px 20px; outline:none; font-size:0.85rem;">
-                                <button class="player-btn" style="margin:5px; background:#3b82f6; color:#fff; padding:8px 15px;" onclick="googleSearchHelper()">🔍 Tap</button>
                                 <button class="player-btn" style="margin:5px; background:var(--party-color); color:#000; font-weight:bold; padding:8px 20px;" onclick="startExternalLink()">🚀 Başlat</button>
                             </div>
                             <div style="padding: 5px 20px; background: #0d1117; color: #8b949e; font-size: 0.75rem; border-top: 1px solid #30363d;">
@@ -1995,6 +1998,7 @@ function loadEpisodes(seasonNum) {
 
 function playPartyEpisode(seasonNum, epNum, epName) {
   const embed = `https://vidsrc.cc/v2/embed/tv/${currentSeriesData.id}/${seasonNum}/${epNum}`;
+  currentVideoUrl = embed;
   syncPartyPlayer(embed);
   broadcast({ type: 'sync-tv', embedUrl: embed, title: `${currentSeriesData.name} S${seasonNum} B${epNum} - ${epName}` });
   showNotify(`${myUsername} serial başladı: ${currentSeriesData.name} S${seasonNum}B${epNum}`);
@@ -2031,6 +2035,7 @@ async function loadPartyCatalog(isNew = true) {
         showSeasonEpisodePicker(item);
       } else {
         const embed = `https://vidsrc.cc/v2/embed/movie/${item.id}`;
+        currentVideoUrl = embed;
         syncPartyPlayer(embed);
         broadcast({ type: 'sync-movie', embedUrl: embed, title });
         showNotify(`${myUsername} film başladı: ${title}`);
@@ -2065,6 +2070,7 @@ async function loadPartyCatalog(isNew = true) {
             }
 
             syncPartyPlayer(parsed.embed);
+            currentVideoUrl = parsed.embed;
             broadcast({ type: 'sync-external', embedUrl: parsed.embed, user: myUsername, source: parsed.source });
             showNotify(`${myUsername} ${parsed.source} başladı`);
             addChatMessage("Sistem", `${myUsername} xarici link başlatdı: ${parsed.source}`, true);
@@ -2125,6 +2131,18 @@ async function loadPartyCatalog(isNew = true) {
                 connections.push(conn);
                 setupConnHandlers(conn);
                 addChatMessage("Sistem", "Yeni iştirakçı daxil oldu!", true);
+                
+                // Host olduğumuzda yeni qoşulan şəxsə hazırda oynayan videonu göndəririk
+                if (isHost && currentVideoUrl) {
+                    setTimeout(() => {
+                        conn.send({ 
+                            type: 'sync-external', 
+                            embedUrl: currentVideoUrl, 
+                            user: 'Sistem', 
+                            source: 'Mövcud Video' 
+                        });
+                    }, 1500);
+                }
             });
         }
 
@@ -2214,7 +2232,7 @@ async function loadPartyCatalog(isNew = true) {
         // Helper: Safe message sending with validation
         function safeSend(data, targetConnections = null) {
             const targets = targetConnections || connections;
-            if (targets.length === 0) return true; // Heç kim yoxdur, amma xəta deyil
+            if (targets.length === 0) return true; 
             
             let sent = 0;
             for(let conn of targets) {
@@ -2227,6 +2245,7 @@ async function loadPartyCatalog(isNew = true) {
                     }
                 }
             }
+            // Əgər heç kimə getmədisə və biz tək deyiliksə, o zaman xəta qaytar
             return sent > 0;
         }
 
@@ -2254,6 +2273,8 @@ async function loadPartyCatalog(isNew = true) {
         function addChatMessage(user, msg, isSystem = false, isMine = false) {
             const box = document.getElementById('chat-messages');
             if(!box) return;
+            
+            // Xüsusi: Sistem mesajları üçün rəng və dizayn
             const div = document.createElement('div');
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
@@ -2266,19 +2287,23 @@ async function loadPartyCatalog(isNew = true) {
                 div.style.textAlign = "center";
                 div.style.fontSize = "0.8rem";
                 div.style.alignSelf = "center";
+                div.style.margin = "10px 0";
                 div.innerHTML = `<span>📢 ${msg}</span>`;
             } else {
-            div.innerHTML = `
-                <div class="msg-info">
-                    <span class="msg-user">${user}</span>
-                    <span class="msg-time">${time}</span>
-                </div>
-                ${msg}
-            `;
+                div.innerHTML = `
+                    <div class="msg-info">
+                        <span class="msg-user">${user}</span>
+                        <span class="msg-time">${time}</span>
+                    </div>
+                    ${msg}
+                `;
             }
             
             box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            // Avtomatik aşağı çəkmək
+            setTimeout(() => {
+                box.scrollTop = box.scrollHeight;
+            }, 50);
         }
 
         function showNotify(text) {
@@ -2303,6 +2328,7 @@ async function loadPartyCatalog(isNew = true) {
         }
 
         function syncPartyPlayer(url) {
+            currentVideoUrl = url;
             const container = document.getElementById('party-player-container');
             
             // Check if it's a direct video file (ends with extension)
@@ -2647,16 +2673,6 @@ async function openActorDetails(id) {
 
         function closeModal() { modal.style.display = 'none'; document.body.style.overflow = 'auto'; if(document.getElementById('main-player')) document.getElementById('main-player').src = ''; }
         
-        function openTelifModal() {
-            document.getElementById('telif-modal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeTelifModal() {
-            document.getElementById('telif-modal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
         function toggleFav(item, btn) {
             const idx = favorites.findIndex(f => f.id === item.id);
             if(idx > -1) { favorites.splice(idx, 1); btn.classList.remove('active'); }
