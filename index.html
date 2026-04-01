@@ -1475,7 +1475,11 @@
                             </div>
                         `,
                         onPolygonHover: setHoverD,
-                        onPolygonClick: ({ properties: d }) => fetchMoviesByCountry(d.ISO_A2, d.ADMIN),
+                        onPolygonClick: ({ properties: d }) => {
+                            let code = d.ISO_A2;
+                            if (d.ADMIN === 'France' || d.ISO_A2 === '-99' && d.ADMIN.includes('France')) code = 'FR';
+                            fetchMoviesByCountry(code, d.ADMIN);
+                        },
                         polygonsTransitionDuration: 500,
                         atmosphereColor: '#6366f1',
                         atmosphereAltitude: 0.15
