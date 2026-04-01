@@ -307,6 +307,21 @@
             filter: brightness(0.6);
         }
 
+        .movie-rank {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #f5c518;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            z-index: 5;
+            border: 1px solid rgba(245, 197, 24, 0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
         .movie-info { 
             padding: 20px; 
             background: linear-gradient(to top, rgba(17, 24, 39, 0.95) 70%, transparent);
@@ -1785,7 +1800,7 @@
             } else if(mode === 'top250') {
                 document.getElementById('nav-top250').classList.add('active');
                 movieContent.style.display = 'none';
-                currentApiUrl = `${BASE_URL}/list/1309?api_key=${API_KEY}&language=${LANG}`;
+                currentApiUrl = `${BASE_URL}/list/3652?api_key=${API_KEY}&language=${LANG}`;
                 getMovies(currentApiUrl);
             } else if(mode === 'party') {
                 document.getElementById('nav-party').classList.add('active');
@@ -2394,14 +2409,16 @@ async function loadPartyCatalog(isNew = true) {
         }
 
         function showMovies(items, isTV = false) {
-            items.forEach(item => {
+            items.forEach((item, index) => {
                 const isFav = favorites.some(f => f.id === item.id);
                 const title = item.title || item.name;
                 const el = document.createElement('div');
-                const ratingElId = `rating-${item.id}-${Math.floor(Math.random() * 1000)}`;
+                const rank = currentMode === 'top250' ? (currentPage - 1) * 20 + index + 1 : null;
+                const ratingElId = `rating-${item.id}-${Math.floor(Math.random() * 100000)}`;
                 el.className = 'movie';
                 el.innerHTML = `
                     <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">❤</button>
+                    ${rank ? `<div class="movie-rank">#${rank}</div>` : ''}
                     <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/300x450'}" alt="${title}">
                     <div class="movie-info">
                         <h3>${title}</h3>
@@ -2434,9 +2451,10 @@ async function loadPartyCatalog(isNew = true) {
                     if (omdbData.imdbRating && omdbData.imdbRating !== 'N/A') {
                         const el = document.getElementById(elId);
                         if (el) {
-                            el.innerText = omdbData.imdbRating;
+                            el.innerHTML = `<span style="font-size: 0.7rem; margin-right: 4px; vertical-align: middle;">IMDb</span>${omdbData.imdbRating}`;
                             el.style.color = '#f5c518'; // IMDb Gold
-                            el.title = 'IMDb Rating';
+                            el.style.fontWeight = '900';
+                            el.title = 'Rəsmi IMDb Balı';
                         }
                     }
                 }
