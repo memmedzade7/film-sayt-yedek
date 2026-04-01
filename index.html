@@ -165,6 +165,17 @@
             border-color: #fbbf24;
         }
 
+        .nav-link.globe-nav {
+            color: #06b6d4;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.1);
+        }
+        .nav-link.globe-nav:hover {
+            background: rgba(6, 182, 212, 0.15);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+            border-color: #06b6d4;
+        }
+
         .mood-section {
             display: flex;
             flex-direction: column;
@@ -237,7 +248,7 @@
             transition: 0.4s;
         }
 
-        .search:focus { width: 380px; outline: none; border-color: #a855f7; box-shadow: var(--neon-glow); }
+        .search:focus { width: 320px; outline: none; border-color: #a855f7; box-shadow: var(--neon-glow); }
 
         .genres-container { display: flex; justify-content: center; gap: 10px; padding: 20px 5%; overflow-x: auto; }
 
@@ -1214,7 +1225,7 @@
                 <div class="nav-link active" id="nav-home" onclick="switchTo('movies')">Filmlər</div>
                 <div class="nav-link" id="nav-series" onclick="switchTo('series')">Seriallar</div>
                 <div class="nav-link" id="nav-actors" onclick="switchTo('actors')">Aktyorlar</div>
-                <div class="nav-link" id="nav-globe" onclick="switchTo('globe')">Qlobus</div>
+                <div class="nav-link globe-nav" id="nav-globe" onclick="switchTo('globe')">Qlobus</div>
                 <div class="nav-link top250-nav" id="nav-top250" onclick="switchTo('top250')">IMDB Top 250</div>
                 <div class="nav-link party-nav" id="nav-party" onclick="switchTo('party')">Otaq </div>
             </nav>
