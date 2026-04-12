@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -14,7 +15,7 @@
   gtag('config', 'G-V5ESHNLC1K');
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200">
     
     <title>RM Film | Minlərlə film, Tək Məkan</title>
     <meta name="description" content="RM Film - Ən son filmlər, seriallar və aktyorlar haqqında məlumat, onlayn izləmə imkanı və şəxsi izləmə siyahısı.">
@@ -72,87 +73,21 @@
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
-            overflow-x: hidden;
+            overflow-x: auto;
+            min-width: 1200px;
         }
 
         header {
-            padding: 1rem 5%;
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(17, 24, 39, 0.95);
+            background: rgba(17, 24, 39, 0.8);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            position: fixed;
-            width: 100%;
+            position: sticky;
             top: 0;
             z-index: 1000;
-            box-sizing: border-box;
-        }
-
-        @media (max-width: 1024px) {
-            header {
-                flex-direction: column;
-                padding: 1rem 2%;
-                gap: 15px;
-            }
-            .nav-menu {
-                margin-left: 0;
-                overflow-x: auto;
-                width: 100%;
-                padding-bottom: 10px;
-                justify-content: flex-start;
-            }
-            .search-container {
-                width: 100%;
-                align-items: center !important;
-            }
-            .search {
-                width: 200px;
-            }
-            .search:focus {
-                width: 240px;
-            }
-            #movie-content {
-                padding-top: 200px;
-            }
-        }
-
-        @media (min-width: 1025px) {
-            #movie-content {
-                padding-top: 100px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            main {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 15px !important;
-                padding: 10px 10px 100px !important;
-            }
-            .movie img {
-                height: 250px !important;
-            }
-            .logo {
-                font-size: 1.8rem;
-            }
-            .mood-container {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .mood-btn {
-                padding: 8px 15px;
-                font-size: 0.8rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            main {
-                grid-template-columns: 1fr !important;
-            }
-            .movie img {
-                height: 380px !important;
-            }
         }
 
         .brand {
@@ -357,10 +292,9 @@
         }
 
         .movie:hover {
-            transform: translateY(-10px) scale(1.05);
-            border-color: rgba(168, 85, 247, 0.8);
-            box-shadow: 0 15px 45px rgba(168, 85, 247, 0.3), 0 0 30px rgba(168, 85, 247, 0.2);
-            z-index: 10;
+            transform: translateY(-15px) scale(1.02);
+            border-color: rgba(168, 85, 247, 0.6);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), var(--neon-glow);
         }
 
         .movie img { 
@@ -1938,13 +1872,8 @@
                 <div class="watch-party-layout">
                     <div class="video-side">
                         <div style="padding:10px 20px; background:#111; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <span style="font-size:0.8rem; color:#8b949e;">Otaq ID: <b id="display-room-id" style="color:var(--party-color);">${roomId}</b></span>
-                                <button class="player-btn" style="padding:4px 10px; font-size:0.7rem;" onclick="copyRoomId('${roomId}')">📋 Kopyala</button>
-                            </div>
+                            <span style="font-size:0.8rem; color:#8b949e;">Otaq ID: <b style="color:var(--party-color);">${roomId}</b></span>
                             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-                                <button class="player-btn" style="background:#22c55e; color:white;" onclick="controlAction('play')">▶ Başlat</button>
-                                <button class="player-btn" style="background:#ef4444; color:white;" onclick="controlAction('pause')">⏸ Dayandır</button>
                                 <button class="player-btn" onclick="openPartyCatalog('movie')">🎬 Film</button>
                                 <button class="player-btn" onclick="openPartyCatalog('tv')">📺 Serial</button>
                                 <button class="player-btn" style="background:#fbbf24; color:#000;" onclick="syncTimeAction()">🕒 Zamanı Sinxron Et</button>
@@ -1996,22 +1925,6 @@
             document.getElementById('external-url-input').addEventListener('keypress', e => { if(e.key === 'Enter') startExternalLink(); });
         }
 
-        function copyRoomId(id) {
-            navigator.clipboard.writeText(id).then(() => {
-                showNotify("Otaq ID-si kopyalandı!");
-            }).catch(err => {
-                console.error('Kopyalama xətası:', err);
-                // Fallback for non-https or older browsers
-                const el = document.createElement('textarea');
-                el.value = id;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-                showNotify("Otaq ID-si kopyalandı!");
-            });
-        }
-
         // Sinxron hərəkət funksiyası
         function controlAction(action, time = null) {
             if (isProcessingRemoteControl) return;
@@ -2021,8 +1934,6 @@
             
             if (video && time === null) {
                 currentTime = video.currentTime;
-            } else if (time === null) {
-                currentTime = 0; // Fallback for iframes
             }
 
             const data = { 
@@ -2151,7 +2062,7 @@ async function loadPartyCatalog(isNew = true) {
     const title = item.title || item.name;
     const icon = isSeries ? '📺' : '🎬';
     div.innerHTML = `
-      <img loading="lazy" src="${item.poster_path ? CAST_IMG_PATH + item.poster_path : 'https://via.placeholder.com/150x225'}" style="height:250px;">
+      <img src="${item.poster_path ? CAST_IMG_PATH + item.poster_path : 'https://via.placeholder.com/150x225'}" style="height:250px;">
       <div style="padding:10px; font-size:0.8rem; text-align:center;">${icon} ${title}</div>
     `;
     div.onclick = () => {
@@ -2317,10 +2228,6 @@ async function loadPartyCatalog(isNew = true) {
                         }
                         
                         setTimeout(() => { isProcessingRemoteControl = false; }, 500);
-                    } else {
-                        // For iframes, we can't control play/pause, so we notify
-                        const msg = formatControlMessage(data.user, data.action, data.time);
-                        showNotify(msg);
                     }
 
                     if(data.user) {
@@ -2514,7 +2421,7 @@ async function loadPartyCatalog(isNew = true) {
                 el.innerHTML = `
                     <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${JSON.stringify(item).replace(/"/g, '&quot;')}, this)">❤</button>
                     ${rank ? `<div class="movie-rank">#${rank}</div>` : ''}
-                    <img loading="lazy" src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/300x450'}" alt="${title}">
+                    <img src="${item.poster_path ? IMG_PATH + item.poster_path : 'https://via.placeholder.com/300x450'}" alt="${title}">
                     <div class="movie-info">
                         <h3>${title}</h3>
                         <div class="rating" id="${ratingElId}">${item.vote_average.toFixed(1)}</div>
@@ -2609,7 +2516,7 @@ async function loadPartyCatalog(isNew = true) {
             // Generate QR Code pointing to current site
             const siteUrl = window.location.origin + window.location.pathname;
             const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(siteUrl)}`;
-            document.getElementById('t-qr-code').innerHTML = `<img loading="lazy" src="${qrCodeUrl}" alt="QR Code">`;
+            document.getElementById('t-qr-code').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code">`;
 
             document.getElementById('ticket-form-screen').style.display = 'none';
             document.getElementById('retro-ticket-screen').style.display = 'block';
@@ -2678,7 +2585,7 @@ async function loadPartyCatalog(isNew = true) {
                     <a href="https://www.google.com/search?q=${encodeURIComponent('перевод ' + movie.title)}" target="_blank" rel="noopener" class="player-btn" style="font-size: 0.8rem;">🇷🇺 Rusça</a>
                 </div>
                 <div class="details-grid">
-                    <img loading="lazy" src="${IMG_PATH + movie.poster_path}">
+                    <img src="${IMG_PATH + movie.poster_path}">
                     <div>
                         <h2>${movie.title}</h2>
                         <div style="margin-bottom: 15px;">
@@ -2689,7 +2596,7 @@ async function loadPartyCatalog(isNew = true) {
                         <div class="cast-container">
                             ${credits.cast.slice(0, 8).map(c => `
                                 <div class="cast-card" onclick="openActorDetails(${c.id})">
-                                    <img loading="lazy" src="${c.profile_path ? CAST_IMG_PATH + c.profile_path : 'https://via.placeholder.com/80x80'}">
+                                    <img src="${c.profile_path ? CAST_IMG_PATH + c.profile_path : 'https://via.placeholder.com/80x80'}">
                                     <div>${c.name}</div>
                                 </div>
                             `).join('')}
@@ -2767,7 +2674,7 @@ async function loadPartyCatalog(isNew = true) {
                     </div>
                 </div>
                 <div class="details-grid">
-                    <img loading="lazy" src="${IMG_PATH + tv.poster_path}">
+                    <img src="${IMG_PATH + tv.poster_path}">
                     <div>
                         <h2>${tv.name}</h2>
                         <div style="margin-bottom: 15px;">
@@ -2778,7 +2685,7 @@ async function loadPartyCatalog(isNew = true) {
                         <div class="cast-container">
                             ${credits.cast.slice(0, 8).map(c => `
                                 <div class="cast-card" onclick="openActorDetails(${c.id})">
-                                    <img loading="lazy" src="${c.profile_path ? CAST_IMG_PATH + c.profile_path : 'https://via.placeholder.com/80x80'}">
+                                    <img src="${c.profile_path ? CAST_IMG_PATH + c.profile_path : 'https://via.placeholder.com/80x80'}">
                                     <div>${c.name}</div>
                                 </div>
                             `).join('')}
@@ -2831,7 +2738,7 @@ async function loadPartyCatalog(isNew = true) {
                     const el = document.createElement('div');
                     el.className = 'actor-card';
                     el.innerHTML = `
-                        <img loading="lazy" src="${actor.profile_path ? CAST_IMG_PATH + actor.profile_path : 'https://via.placeholder.com/200x300'}" alt="${actor.name}">
+                        <img src="${actor.profile_path ? CAST_IMG_PATH + actor.profile_path : 'https://via.placeholder.com/200x300'}" alt="${actor.name}">
                         <h3>${actor.name}</h3>
                         <p>${actor.known_for_department}</p>
                     `;
@@ -2854,7 +2761,7 @@ async function openActorDetails(id) {
             modalContent.innerHTML = `
                 <span class="close-modal" onclick="closeModal()">&times;</span>
                 <div class="actor-header" style="display:flex; gap:20px; padding:40px;">
-                    <img loading="lazy" src="${person.profile_path ? IMG_PATH + person.profile_path : ''}" style="width:200px; border-radius:20px;">
+                    <img src="${person.profile_path ? IMG_PATH + person.profile_path : ''}" style="width:200px; border-radius:20px;">
                     <div>
                         <h2>${person.name}</h2>
                         <p>${person.biography || ''}</p>
