@@ -2,7 +2,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -988,50 +987,86 @@
         .ticket-form input:focus { border-color: #a855f7; }
 
         .retro-ticket {
-            background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+            background: linear-gradient(135deg, #0f1116 0%, #1a1d26 100%);
             color: #ffffff;
-            width: 700px;
-            padding: 50px;
-            border-radius: 15px;
+            width: 750px;
+            padding: 60px;
+            border-radius: 24px;
             position: relative;
             font-family: 'Plus Jakarta Sans', sans-serif;
             box-shadow: 
-                0 0 20px rgba(239, 68, 68, 0.3),
-                0 30px 60px rgba(0, 0, 0, 0.8);
+                0 0 40px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(239, 68, 68, 0.2);
             display: none;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            overflow: visible;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
             transform: none;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Neon Glow Effect */
+        /* Moving Border Glow Animation */
         .retro-ticket::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-radius: 15px;
-            padding: 2px;
-            background: linear-gradient(45deg, transparent, rgba(239, 68, 68, 0.5), transparent);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
+            inset: -2px;
+            background: linear-gradient(90deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background-size: 400%;
+            z-index: -1;
+            filter: blur(5px);
+            animation: moveGlow 20s linear infinite;
+            border-radius: 26px;
+            opacity: 0.4;
         }
 
-        /* Perforasiya xətti */
+        @keyframes moveGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism Shine */
         .retro-ticket::after {
             content: '';
             position: absolute;
-            top: 0;
-            right: 200px;
-            bottom: 0;
-            border-left: 2px dashed rgba(239, 68, 68, 0.3);
-            z-index: 2;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 45%,
+                rgba(255, 255, 255, 0.05) 48%,
+                rgba(255, 255, 255, 0.1) 50%,
+                rgba(255, 255, 255, 0.05) 52%,
+                transparent 55%
+            );
+            transform: rotate(-45deg);
+            animation: shine 8s infinite;
+            pointer-events: none;
         }
 
-        /* Yanlardakı kəsiklər */
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(-45deg); }
+            100% { transform: translateX(100%) rotate(-45deg); }
+        }
+
+        /* Diamond VIP Badge */
+        .vip-badge {
+            position: absolute;
+            top: 20px;
+            left: -35px;
+            background: linear-gradient(45deg, #ef4444, #f87171);
+            color: white;
+            padding: 8px 40px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: rotate(-45deg);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+            z-index: 10;
+        }
+
         .ticket-cut-left, .ticket-cut-right {
             position: absolute;
             top: 50%;
@@ -1041,13 +1076,13 @@
             border-radius: 50%;
             transform: translateY(-50%);
             z-index: 5;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
         .ticket-cut-left { left: -20px; }
         .ticket-cut-right { right: -20px; }
 
         .ticket-header {
-            border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 25px;
             margin-bottom: 30px;
             text-align: left;
@@ -1055,96 +1090,121 @@
         }
         .ticket-header h1 { 
             margin: 0; 
-            font-size: 28px; 
+            font-size: 32px; 
             text-transform: uppercase; 
-            letter-spacing: 4px; 
+            letter-spacing: 6px; 
             color: #ffffff;
-            font-weight: 800;
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .ticket-header .serial-no {
             position: absolute;
-            top: -10px;
+            top: -5px;
             right: 0;
-            font-size: 12px;
+            font-size: 11px;
             color: #ef4444;
-            font-weight: bold;
+            font-weight: 800;
             letter-spacing: 2px;
-            border: 1px solid #ef4444;
-            padding: 4px 12px;
-            border-radius: 20px;
             background: rgba(239, 68, 68, 0.1);
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
         }
 
         .ticket-body { 
             display: flex; 
             justify-content: space-between; 
-            align-items: flex-start; 
-            gap: 50px;
+            align-items: center; 
+            gap: 40px;
         }
         .ticket-info { 
             flex: 1; 
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 25px;
+            gap: 30px;
         }
         .ticket-info .full-width { grid-column: span 2; }
         .ticket-info div { 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 5px;
+            position: relative;
+            padding-left: 25px;
+        }
+        /* Exclusive Icons */
+        .ticket-info div::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ef4444;
+            font-size: 20px;
         }
         .ticket-info label { 
             font-size: 10px; 
             color: #ef4444; 
             display: block; 
             text-transform: uppercase; 
-            margin-bottom: 5px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            opacity: 0.8;
         }
         .ticket-info span { 
-            font-weight: 600; 
-            font-size: 18px; 
+            font-weight: 700; 
+            font-size: 19px; 
             color: #ffffff;
             display: block;
             text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
         }
 
         .qr-section {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 150px;
-            padding-right: 10px;
+            width: 160px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .qr-code {
             width: 120px;
             height: 120px;
             background: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .qr-code img { width: 100%; height: 100%; filter: contrast(1.1); }
-        .qr-text { font-size: 9px; margin-top: 12px; color: #ef4444; text-align: center; font-weight: bold; letter-spacing: 2px; }
+        .qr-text { 
+            font-size: 9px; 
+            margin-top: 15px; 
+            color: #ef4444; 
+            text-align: center; 
+            font-weight: 900; 
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
 
         .ticket-footer {
-            margin-top: 30px;
+            margin-top: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             font-size: 10px;
-            color: #8b949e;
-            font-weight: 500;
-            padding-top: 15px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            color: #636e72;
+            font-weight: 600;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
         .ticket-footer span {
-            letter-spacing: 2px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
         }
         .close-ticket {
             position: fixed;
@@ -1265,6 +1325,7 @@
 
         <!-- 3. Bilet Ekranı -->
         <div id="retro-ticket-screen" class="retro-ticket">
+            <div class="vip-badge">DIAMOND VIP</div>
             <div class="ticket-cut-left"></div>
             <div class="ticket-cut-right"></div>
             <div class="ticket-header">
