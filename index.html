@@ -1,3 +1,4 @@
+22 KB
 
 
 
@@ -15,7 +16,7 @@
   gtag('config', 'G-V5ESHNLC1K');
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1200">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>RM Film | Minlərlə film, Tək Məkan</title>
     <meta name="description" content="RM Film - Ən son filmlər, seriallar və aktyorlar haqqında məlumat, onlayn izləmə imkanı və şəxsi izləmə siyahısı.">
@@ -1023,39 +1024,35 @@
         .ticket-form input:focus { border-color: #a855f7; }
 
         .retro-ticket {
-            background: #fdf5e6;
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.05) 100%),
-                url('https://www.transparenttextures.com/patterns/paper-fibers.png');
-            color: #2c1810;
+            background: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+            color: #ffffff;
             width: 700px;
             padding: 50px;
-            border-radius: 4px;
+            border-radius: 15px;
             position: relative;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             box-shadow: 
-                0 30px 60px rgba(101, 45, 11, 0.5), /* Daha tünd kölgə */
-                0 0 0 10px rgba(101, 45, 11, 0.15), 
-                inset 0 0 30px rgba(101, 45, 11, 0.3); /* Daha tünd daxili kölgə */
+                0 0 20px rgba(239, 68, 68, 0.3),
+                0 30px 60px rgba(0, 0, 0, 0.8);
             display: none;
-            border: 1px solid #a58e74; /* Daha tünd kənar */
+            border: 1px solid rgba(239, 68, 68, 0.4);
             overflow: visible;
-            transform: rotate(-0.5deg);
+            transform: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Üst və alt kənar nöqtələri */
+        /* Neon Glow Effect */
         .retro-ticket::before {
-            content: '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••';
+            content: '';
             position: absolute;
-            top: 2px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 10px;
-            color: rgba(139, 69, 19, 0.1);
-            letter-spacing: 5px;
-            overflow: hidden;
-            height: 10px;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(239, 68, 68, 0.5), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
             pointer-events: none;
         }
 
@@ -1066,7 +1063,7 @@
             top: 0;
             right: 200px;
             bottom: 0;
-            border-left: 2px dashed rgba(139, 69, 19, 0.3);
+            border-left: 2px dashed rgba(239, 68, 68, 0.3);
             z-index: 2;
         }
 
@@ -1074,19 +1071,19 @@
         .ticket-cut-left, .ticket-cut-right {
             position: absolute;
             top: 50%;
-            width: 50px;
-            height: 50px;
-            background: #000;
+            width: 40px;
+            height: 40px;
+            background: #05070a;
             border-radius: 50%;
             transform: translateY(-50%);
             z-index: 5;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.9);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
         }
-        .ticket-cut-left { left: -25px; }
-        .ticket-cut-right { right: -25px; }
+        .ticket-cut-left { left: -20px; }
+        .ticket-cut-right { right: -20px; }
 
         .ticket-header {
-            border-bottom: 2px solid #8b4513;
+            border-bottom: 1px solid rgba(239, 68, 68, 0.3);
             padding-bottom: 25px;
             margin-bottom: 30px;
             text-align: left;
@@ -1094,27 +1091,26 @@
         }
         .ticket-header h1 { 
             margin: 0; 
-            font-size: 30px; 
+            font-size: 28px; 
             text-transform: uppercase; 
-            letter-spacing: 3px; 
-            color: #5d2e0a;
-            font-weight: 900;
-            opacity: 0.9;
+            letter-spacing: 4px; 
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
         }
         .ticket-header .serial-no {
             position: absolute;
-            top: -15px;
+            top: -10px;
             right: 0;
-            font-size: 14px;
-            color: #b22222;
+            font-size: 12px;
+            color: #ef4444;
             font-weight: bold;
-            letter-spacing: 1px;
-            transform: rotate(4deg);
-            border: 2px solid #b22222;
-            padding: 3px 10px;
-            border-radius: 4px;
-            opacity: 0.8;
-            background: rgba(178, 34, 34, 0.05);
+            letter-spacing: 2px;
+            border: 1px solid #ef4444;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(239, 68, 68, 0.1);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
         }
 
         .ticket-body { 
@@ -1131,23 +1127,22 @@
         }
         .ticket-info .full-width { grid-column: span 2; }
         .ticket-info div { 
-            border-bottom: 1px solid rgba(139, 69, 19, 0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 5px;
         }
         .ticket-info label { 
-            font-size: 9px; 
-            color: #8b4513; 
+            font-size: 10px; 
+            color: #ef4444; 
             display: block; 
             text-transform: uppercase; 
-            margin-bottom: 3px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            opacity: 0.6;
+            margin-bottom: 5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
         }
         .ticket-info span { 
-            font-weight: 900; 
-            font-size: 17px; 
-            color: #3e1f0a;
+            font-weight: 600; 
+            font-size: 18px; 
+            color: #ffffff;
             display: block;
             text-transform: uppercase;
         }
@@ -1164,12 +1159,13 @@
             width: 120px;
             height: 120px;
             background: #fff;
-            padding: 8px;
-            border: 1px solid #d2b48c;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
         }
-        .qr-code img { width: 100%; height: 100%; mix-blend-mode: multiply; filter: contrast(1.1); }
-        .qr-text { font-size: 8px; margin-top: 12px; color: #8b4513; text-align: center; font-weight: bold; letter-spacing: 2px; opacity: 0.8; }
+        .qr-code img { width: 100%; height: 100%; filter: contrast(1.1); }
+        .qr-text { font-size: 9px; margin-top: 12px; color: #ef4444; text-align: center; font-weight: bold; letter-spacing: 2px; }
 
         .ticket-footer {
             margin-top: 30px;
@@ -1178,14 +1174,42 @@
             align-items: center;
             gap: 5px;
             font-size: 10px;
-            color: #8b4513;
-            font-weight: bold;
-            opacity: 0.6;
+            color: #8b949e;
+            font-weight: 500;
             padding-top: 15px;
-            border-top: 1px dashed rgba(139, 69, 19, 0.2);
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
         }
         .ticket-footer span {
             letter-spacing: 2px;
+        }
+
+        @media (max-width: 800px) {
+            .retro-ticket {
+                width: 95%;
+                padding: 30px 20px;
+                transform: none;
+            }
+            .ticket-body {
+                flex-direction: column;
+                gap: 30px;
+                align-items: center;
+            }
+            .retro-ticket::after {
+                display: none;
+            }
+            .ticket-header h1 {
+                font-size: 20px;
+            }
+            .ticket-info {
+                gap: 15px;
+            }
+            .ticket-info span {
+                font-size: 15px;
+            }
+            .qr-section {
+                width: 100%;
+                padding-right: 0;
+            }
         }
         .close-ticket {
             position: fixed;
@@ -1673,7 +1697,22 @@
             
             connections = []; // Köhnə bağlantıları təmizləyirik
             isHost = (type === 'host');
-            peer = new Peer();
+            
+            // PeerJS konfiqurasiyası: Google STUN serverləri əlavə edildi
+            const peerConfig = {
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                        { urls: 'stun:stun3.l.google.com:19302' },
+                        { urls: 'stun:stun4.l.google.com:19302' }
+                    ]
+                },
+                debug: 1
+            };
+
+            peer = new Peer(peerConfig);
 
             peer.on('open', id => {
                 console.log('Peer opened with ID:', id);
@@ -1696,19 +1735,28 @@
 
             peer.on('disconnected', () => {
                 console.log('Peer disconnected, attempting reconnect...');
-                if (!peer.destroyed) peer.reconnect();
+                if (!peer.destroyed) {
+                    peer.reconnect();
+                }
             });
 
             peer.on('error', err => {
                 console.error('Peer error:', err.type);
+                
                 if (err.type === 'peer-unavailable') {
-                    showNotify('Otaq tapılmadı və ya host ayrıldı.');
+                    showNotify('Xəta: Otaq tapılmadı və ya host offline-dır.');
+                    addChatMessage('Sistem', 'Otaq tapılmadı və ya bağlantı kəsildi.', true);
                     localStorage.removeItem('watch-party-room');
-                } else if (err.type === 'network' || err.type === 'server-error') {
+                } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'network-dedicated') {
+                    showNotify('Bağlantı xətası! Yenidən qoşulmağa çalışılır...');
+                    addChatMessage('Sistem', 'Şəbəkə xətası - Avtomatik bərpa edilir...', true);
+                    
                     clearTimeout(reconnectTimeout);
                     reconnectTimeout = setTimeout(() => {
                         if (currentRoomId) initPeer(isHost ? 'host' : 'join', currentRoomId);
-                    }, 3000);
+                    }, 5000);
+                } else {
+                    showNotify(`PeerJS Xətası: ${err.type}`);
                 }
             });
         }
@@ -2473,6 +2521,20 @@ async function loadPartyCatalog(isNew = true) {
             const movie = await res.json();
             currentMovieForTicket = movie;
 
+            // Dinamik SEO yenilənməsi
+            document.title = `${movie.title} İzlə - RM Film`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if(metaDesc) metaDesc.content = movie.overview.substring(0, 160) + "...";
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if(ogTitle) ogTitle.content = `${movie.title} İzlə - RM Film`;
+            
+            const ogImg = document.querySelector('meta[property="og:image"]');
+            if(ogImg) ogImg.content = IMG_PATH + movie.backdrop_path;
+
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if(ogDesc) ogDesc.content = movie.overview.substring(0, 160) + "...";
+
             // Show ticket question modal
             const ticketModal = document.getElementById('ticket-modal');
             ticketModal.style.display = 'flex';
@@ -2620,6 +2682,20 @@ async function loadPartyCatalog(isNew = true) {
             const tv = await tvRes.json();
             const credits = await cRes.json();
             const extData = await extRes.json();
+
+            // Dinamik SEO yenilənməsi
+            document.title = `${tv.name} İzlə - RM Film`;
+            const metaDesc = document.querySelector('meta[name="description"]');
+            if(metaDesc) metaDesc.content = tv.overview.substring(0, 160) + "...";
+            
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if(ogTitle) ogTitle.content = `${tv.name} İzlə - RM Film`;
+            
+            const ogImg = document.querySelector('meta[property="og:image"]');
+            if(ogImg) ogImg.content = IMG_PATH + tv.backdrop_path;
+
+            const ogDesc = document.querySelector('meta[property="og:description"]');
+            if(ogDesc) ogDesc.content = tv.overview.substring(0, 160) + "...";
 
             let imdbRatingHTML = '';
             if (extData.imdb_id) {
