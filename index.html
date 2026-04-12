@@ -1,3 +1,8 @@
+22 KB
+
+
+
+
 <!DOCTYPE html>
 <html lang="az">
 <head>
@@ -11,7 +16,7 @@
   gtag('config', 'G-V5ESHNLC1K');
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1200">
     
     <title>RM Film | Minlərlə film, Tək Məkan</title>
     <meta name="description" content="RM Film - Ən son filmlər, seriallar və aktyorlar haqqında məlumat, onlayn izləmə imkanı və şəxsi izləmə siyahısı.">
@@ -527,42 +532,6 @@
             background: #000;
             overflow: hidden;
             position: relative;
-        }
-        
-        @media (max-width: 800px) {
-            .watch-party-layout {
-                flex-direction: column !important;
-                height: 100dvh !important;
-                position: fixed !important;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                z-index: 2000;
-            }
-            .video-side {
-                width: 100% !important;
-                height: auto !important;
-                flex-shrink: 0;
-            }
-            .chat-container {
-                width: 100% !important;
-                min-width: 100% !important;
-                flex: 1 !important;
-                border-left: none !important;
-                border-top: 1px solid #30363d !important;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
-            }
-            #chat-messages {
-                flex: 1;
-                overflow-y: auto;
-            }
-            .chat-input-area {
-                flex-shrink: 0;
-                padding-bottom: env(safe-area-inset-bottom, 20px) !important;
-            }
         }
         
         .video-side {
@@ -1177,35 +1146,6 @@
         .ticket-footer span {
             letter-spacing: 2px;
         }
-
-        @media (max-width: 800px) {
-            .retro-ticket {
-                width: 95%;
-                padding: 30px 20px;
-                transform: none;
-            }
-            .ticket-body {
-                flex-direction: column;
-                gap: 30px;
-                align-items: center;
-            }
-            .retro-ticket::after {
-                display: none;
-            }
-            .ticket-header h1 {
-                font-size: 20px;
-            }
-            .ticket-info {
-                gap: 15px;
-            }
-            .ticket-info span {
-                font-size: 15px;
-            }
-            .qr-section {
-                width: 100%;
-                padding-right: 0;
-            }
-        }
         .close-ticket {
             position: fixed;
             top: 30px;
@@ -1772,18 +1712,6 @@
             }
         });
         document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        // Mobil klaviatura UI tənzimləməsi
-         if (window.visualViewport) {
-             window.visualViewport.addEventListener('resize', () => {
-                 const layout = document.querySelector('.watch-party-layout');
-                 if (layout && window.innerWidth <= 800) {
-                     layout.style.height = `${window.visualViewport.height}px`;
-                     const chatMsgs = document.getElementById('chat-messages');
-                     if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
-                 }
-             });
-         }
 
         function init() {
             renderGenres();
