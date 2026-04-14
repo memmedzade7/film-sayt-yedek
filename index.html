@@ -1852,6 +1852,9 @@
             const setup = document.getElementById('room-setup');
             if(setup) setup.remove();
             
+            // Yeni otaq üçün köhnə mesajları təmizləyirik
+            shownMessageIds = new Set();
+            
             // Əgər artıq otaq interfeysi qurulubsa, yenidən render etmə (videonu kəsməmək üçün)
             if (!document.querySelector('.watch-party-layout')) {
                 renderActiveParty(roomId);
@@ -2172,6 +2175,9 @@ async function loadPartyCatalog(isNew = true) {
             });
         }
 
+        // shownMessageIds global olaraq yoxlanılmalıdır ki, hər yerdən əlçatan olsun
+        let shownMessageIds = new Set();
+
         function setupConnHandlers(conn) {
             conn.on('open', () => {
                 console.log('Connection established with:', conn.peer);
@@ -2185,8 +2191,21 @@ async function loadPartyCatalog(isNew = true) {
                 console.log('Received:', data.type, 'from', data.user || 'unknown');
                 
                 if(data.type === 'chat') {
-                    addChatMessage(data.user, data.msg);
-                    if(isHost) broadcast(data, conn);
+                    // Mesajın özümüzünkü olub-olmadığını yoxlayırıq (msgId ilə)
+                    const isOwnMessage = data.msgId && shownMessageIds.has(data.msgId);
+                    
+                    console.log('Chat message check:', { from: data.user, msgId: data.msgId, isOwn: isOwnMessage, isHost: isHost });
+                    
+                    // Öz mesajımız deyilsə, göstəririk
+                    if (!isOwnMessage) {
+                        addChatMessage(data.user, data.msg, false, false, data.msgId);
+                    }
+                    
+                    // Host-dursa, mesajı digər iştirakçılara yayırıq
+                    if(isHost && !isOwnMessage) {
+                        console.log('Host relaying message to other participants');
+                        broadcast(data, conn);
+                    }
                 } 
                 else if(data.type === 'sync-movie' || data.type === 'sync-tv' || data.type === 'sync-external') {
                     syncPartyPlayer(data.embedUrl);
@@ -2280,25 +2299,51 @@ async function loadPartyCatalog(isNew = true) {
             const msg = inp.value.trim();
             if(!msg) return;
             
-            const chatData = { type: 'chat', user: myUsername, msg: msg, timestamp: Date.now() };
+            // İstifadəçi adının boş olub-olmadığını yoxlayırıq
+            if (!myUsername) {
+                myUsername = localStorage.getItem('watch-party-user') || "Qonaq";
+            }
+
+            const chatData = {
+                type: 'chat',
+                user: myUsername,
+                msg: msg,
+                timestamp: Date.now(),
+                msgId: myUsername + '_' + Date.now() // Unikal mesaj ID-si
+            };
             
-            // Always add locally first
-            addChatMessage(myUsername, msg, false, true);
+            // Şəbəkəyə göndəririk
+            const result = safeSend(chatData);
+            console.log('Chat send result:', result, 'Connections:', connections.length);
+            
+            // Nəticədən asılı olmayaraq mesajı öz ekranımıza əlavə edirik
+            // (şəbəkədən gələn eyni msgId-li mesajı addChatMessage-da yoxlayırıq)
+            addChatMessage(myUsername, msg, false, true, chatData.msgId);
             inp.value = '';
             
-            // Send to network
-            if(safeSend(chatData)) {
-                // Typing indicator cleanup if active
-                const typingMsg = document.querySelector('.chat-msg.typing');
-                if(typingMsg) typingMsg.remove();
-            } else {
-                addChatMessage('Sistem', 'Bağlantı xətası - mesaj göndərilə bilmədi', true);
+            if(!result && !isHost) {
+                addChatMessage('Sistem', 'Bağlantı xətası - mesaj göndərilə bilmədi (Hostla bağlantı yoxdur)', true);
             }
         }
 
-        function addChatMessage(user, msg, isSystem = false, isMine = false) {
+        // shownMessageIds artıq yuxarıda elan edilib
+        function addChatMessage(user, msg, isSystem = false, isMine = false, msgId = null) {
             const box = document.getElementById('chat-messages');
             if(!box) return;
+            
+            // Əgər msgId varsa və artıq göstərilibsə, təkrar göstərmirik
+            if (msgId && shownMessageIds.has(msgId)) {
+                console.log('Duplicate message ignored:', msgId);
+                return;
+            }
+            if (msgId) {
+                shownMessageIds.add(msgId);
+                // 1000-dən çox mesaj ID-si yığılıbsa, ən köhnələri silirik
+                if (shownMessageIds.size > 1000) {
+                    const arr = Array.from(shownMessageIds);
+                    shownMessageIds = new Set(arr.slice(-500));
+                }
+            }
             
             // Xüsusi: Sistem mesajları üçün rəng və dizayn
             const div = document.createElement('div');
