@@ -1573,7 +1573,7 @@
 
         // PeerJS Dəyişənləri
         let peer = null;
-        let connections = []; 
+        let connections = [];
         let myUsername = "";
         let isHost = false;
         let currentRoomId = "";
@@ -1584,6 +1584,7 @@
         let isCatalogLoading = false;
         let catalogType = 'movie';
         let isProcessingRemoteControl = false;
+        let shownMessageIds = new Set();
 
         const genres = [
             { id: 28, name: 'Aksiyon' }, { id: 12, name: 'Macəra' },
@@ -2175,9 +2176,6 @@ async function loadPartyCatalog(isNew = true) {
             });
         }
 
-        // shownMessageIds global olaraq yoxlanılmalıdır ki, hər yerdən əlçatan olsun
-        let shownMessageIds = new Set();
-
         function setupConnHandlers(conn) {
             conn.on('open', () => {
                 console.log('Connection established with:', conn.peer);
@@ -2185,6 +2183,11 @@ async function loadPartyCatalog(isNew = true) {
                     connections = [conn];
                     addChatMessage('Sistem', 'Otağa qoşuldunuz!', true);
                 }
+                // Bağlantı statusunu yenilə
+                const statusDot = document.getElementById('connection-status-dot');
+                const statusText = document.getElementById('connection-status-text');
+                if (statusDot) statusDot.style.background = '#4ade80';
+                if (statusText) statusText.innerText = isHost ? `Online (${connections.length} iştirakçı)` : 'Online (Hosta qoşulub)';
             });
 
             conn.on('data', data => {
@@ -2261,36 +2264,47 @@ async function loadPartyCatalog(isNew = true) {
 
         function broadcast(data, excludeConn = null) {
             let sent = 0;
-            connections.forEach(c => {
-                if(c !== excludeConn && c && c.open) {
-                    try {
-                        c.send(data);
-                        sent++;
-                    } catch(e) {
-                        console.error('Broadcast failed to conn:', e);
-                    }
+            const activeTargets = connections.filter(c => c && c.open && c !== excludeConn);
+            
+            activeTargets.forEach(c => {
+                try {
+                    c.send(data);
+                    sent++;
+                } catch(e) {
+                    console.error('Broadcast failed to conn:', c.peer, e);
                 }
             });
-            console.log(`Broadcast ${data.type} to ${sent}/${connections.length} connections`);
+            console.log(`Broadcast ${data.type} to ${sent}/${activeTargets.length} active connections (Total: ${connections.length})`);
         }
 
         // Helper: Safe message sending with validation
         function safeSend(data, targetConnections = null) {
-            const targets = targetConnections || connections;
-            if (targets.length === 0) return true; 
+            const targets = (targetConnections || connections).filter(c => c && c.open);
+            
+            if (targets.length === 0) {
+                console.log('safeSend: No open connections. isHost:', isHost, 'currentRoomId:', currentRoomId);
+                if (!isHost && currentRoomId) {
+                    console.log('Attempting to reconnect...');
+                    reconnectPeer();
+                }
+                // Host təkdirsə, öz mesajını göstər
+                return isHost;
+            }
             
             let sent = 0;
             for(let conn of targets) {
-                if(conn && conn.open) {
-                    try {
-                        conn.send(data);
-                        sent++;
-                    } catch(e) {
-                        console.error('Send failed:', e);
+                try {
+                    conn.send(data);
+                    sent++;
+                } catch(e) {
+                    console.error('Send failed for conn:', conn.peer, e);
+                    // Bağlantı xətalıdırsa, siyahıdan çıxartaq
+                    if (!conn.open) {
+                        connections = connections.filter(c => c !== conn);
                     }
                 }
             }
-            // Əgər heç kimə getmədisə və biz tək deyiliksə, o zaman xəta qaytar
+            console.log('safeSend result:', sent, 'of', targets.length);
             return sent > 0;
         }
 
